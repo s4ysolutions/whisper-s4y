@@ -9,7 +9,7 @@ model_name = 'openai/whisper-base'
 # temporary catalog for saving the huggingface model localy
 saved_model_dir = 'tf_whisper_saved'
 # name of file to contain TF Lite model
-tflite_model_path = os.path.basename(f"{model_name}.tflite")
+tflite_model_path = 'whisper.tflite'
 # True for testing purpose
 skip_convert = False
 
