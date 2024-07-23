@@ -1,4 +1,3 @@
-import os
 import tensorflow as tf
 from transformers import WhisperProcessor, TFWhisperForConditionalGeneration, TFForceTokensLogitsProcessor
 import tensorflow_io as tfio
