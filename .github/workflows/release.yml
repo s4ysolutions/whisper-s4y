@@ -23,16 +23,16 @@ jobs:
       run: |
         zip whisper.tflite-${{ github.event.release.tag_name }}.zip whisper.tflite
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ env.TAG_NAME }}
-        release_name: Release ${{ env.TAG_NAME }}
-        draft: false
-        prerelease: false
+#    - name: Create Release
+#      id: create_release
+#      uses: actions/create-release@v1
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      with:
+#        tag_name: ${{ env.TAG_NAME }}
+#        release_name: Release ${{ env.TAG_NAME }}
+#        draft: false
+#        prerelease: false
 
     - name: Upload release package
       uses: actions/upload-release-asset@v1
