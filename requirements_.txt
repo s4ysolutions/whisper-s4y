@@ -1,0 +1,10 @@
+torch
+torchaudio
+transformers
+PySoundFile
+tensorflow == 2.16.1
+tensorflow_io
+tf_keras
+onnx
+onnxruntime
+huggingface_hub
