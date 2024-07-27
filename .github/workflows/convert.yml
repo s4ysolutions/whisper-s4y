@@ -2,8 +2,9 @@ name: create tflite
 
 on:
   push:
-    branches:
-      - "main"
+    tags:
+      - "build-*"
+  workflow_dispatch:
 
 permissions:
   contents: read
