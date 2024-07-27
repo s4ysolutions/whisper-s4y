@@ -7,8 +7,7 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/shared-steps.yml
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/build-steps.yml
 
   package:
     needs: build
