@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build:
-    uses: ./.github/workflows/shared-steps.yml
+    uses: ./.github/workflows/build-steps.yml
     runs-on: ubuntu-latest
 
   test:
