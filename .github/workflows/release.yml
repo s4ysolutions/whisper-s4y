@@ -1,0 +1,46 @@
+name: create tflite
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  build:
+    uses: ./.github/workflows/shared-steps.yml
+    runs-on: ubuntu-latest
+
+  package:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: whisper2tflite.py
+
+    - name: zip
+      run: |
+        zip whisper.tflite-${{ github.event.release.tag_name }}.zip whisper.tflite
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.TAG_NAME }}
+        release_name: Release ${{ env.TAG_NAME }}
+        draft: false
+        prerelease: false
+
+    - name: Upload release package
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./whisper.tflite-${{ github.event.release.tag_name }}.zip
+        asset_name: whisper.tflite-${{ github.event.release.tag_name }}.zip
+        asset_content_type: application/zip
