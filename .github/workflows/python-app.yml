@@ -30,7 +30,7 @@ jobs:
     - name: create tflite
       run: |
         python3 whisper2tflite.py
-        zip whisper.tflite
+        zip whisper.tflite.zip whisper.tflite
         
     - name: Create Release
       id: create_release
@@ -49,6 +49,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./whisper.tflite
+        asset_path: ./whisper.tflite.zip
         asset_name: whisper.tflite
         asset_content_type: application/zip
