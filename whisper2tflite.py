@@ -1,16 +1,16 @@
 import tensorflow as tf
 from transformers import WhisperProcessor, TFWhisperForConditionalGeneration, TFForceTokensLogitsProcessor
-import tensorflow_io as tfio
 import TFForceTokensLogitsProcessorPatch as patch
 
-# huggingface model name
-model_name = 'openai/whisper-base'
+from settings import model_name, tflite_model_path
+from test import test
+
 # temporary catalog for saving the huggingface model localy
 saved_model_dir = 'tf_whisper_saved'
-# name of file to contain TF Lite model
-tflite_model_path = 'whisper.tflite'
 # True for testing purpose
 skip_convert = False
+# False if test after creation
+skip_test = True
 
 # Patching methods of class TFForceTokensLogitsProcessor(TFLogitsProcessor):
 # TFForceTokensLogitsProcessor has a bug which causes lite model to crach
@@ -18,17 +18,6 @@ skip_convert = False
 # https://github.com/huggingface/transformers/issues/19691#issuecomment-1791869884
 TFForceTokensLogitsProcessor.__init__ = patch.patched__init__
 TFForceTokensLogitsProcessor.__call__ = patch.patched__call__
-
-
-# A helper function to extract array of raw PCM floats from wav file
-def wav_audio(wav_file_path):
-    waveform, sample_rate = tf.audio.decode_wav(tf.io.read_file(wav_file_path))
-    if sample_rate != 16000:
-        print(f"sample rate is {sample_rate}, resampling...")
-        waveform = tfio.audio.resample(waveform, rate_in=sample_rate, rate_out=16000)
-        print("ok")
-    audio = waveform[:, 0]
-    return audio
 
 
 # A wrapper around hugging face model to be used by Lite interpetator
@@ -103,39 +92,8 @@ if not skip_convert:
         f.write(tflite_model)
 
 # At this point we already have tflite model, and it is good idea to check it works
-# model check
-# read a "waveform" - an array of the floats forming a voice raw data
-audio = wav_audio('1-1.wav')
-# we need to conver wave form to "mel spectrogram"
-# namely to turn the 1-dimenstion array of PCM values
-# to n-dimension array of the set of frequneces for very small duration of
-# audio record which being summed restore PCM value at that time
-# (Fourier transform if such term is easier)
-inputs = processor(audio, sampling_rate=16000, return_tensors="tf")
-input_features = inputs.input_features
-
-# this commented out code for testing the original models:
-# just call their `generate` method
-#model = TFWhisperForConditionalGeneration.from_pretrained(model_name)
-#generated_ids = model.generate(input_features, forced_decoder_ids = forced_decoder_ids)
-#model = GenerateModel(model=model, forced_decoder_ids=forced_decoder_ids)
-#generated_ids = model.generate(input_features)
-
-# our purpose is to check the Lite model
-interpreter = tf.lite.Interpreter(tflite_model_path)
-# This magic call give us the `serving` method of the wrapper class
-# If we did not have the only method we would have had to use more complex approach
-# to find the needed serving. Google for get_signature_runner if interested
-tflite_generate = interpreter.get_signature_runner()
-# a workhorse: calls the serving which in turn will call `generate` method
-# of the original model
-output = tflite_generate(input_features=input_features)
-generated_ids = output["sequences"]
-# now we have an array of `tokens` - integer values
-# and need to convert them to the string
-# use huggingface utility class to do so
-transcription = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-print(transcription)
+if not skip_test:
+    test()
 
 # it is important to note: only model will be available in the application
 # which use the model but `processor` lives only in this python script, so the application
