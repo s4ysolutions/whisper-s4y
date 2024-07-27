@@ -18,7 +18,7 @@ jobs:
     - name: Download artifacts
       uses: actions/download-artifact@v3
       with:
-        name: whisper2tflite.py
+        name: whisper.tflite
 
     - name: zip
       run: |

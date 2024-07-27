@@ -28,8 +28,12 @@ jobs:
       run: |
         python3 whisper2tflite.py
 
+    - name: test
+      run: |
+        python3 test.py
+
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: whisper2tflite.py
-        path: whisper2tflite.py
+        name: whisper.tflite
+        path: whisper.tflite

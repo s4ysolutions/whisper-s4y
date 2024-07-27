@@ -11,19 +11,3 @@ permissions:
 jobs:
   build:
     uses: ./.github/workflows/build-steps.yml
-
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v3
-      with:
-          name: whisper2tflite.py
-
-    - uses: actions/checkout@v4
-
-    - name: test
-      run: |
-        python3 test.py
