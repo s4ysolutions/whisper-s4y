@@ -8,7 +8,7 @@ from test import test
 # temporary catalog for saving the huggingface model localy
 saved_model_dir = 'tf_whisper_saved'
 # True for testing purpose
-skip_convert = False
+skip_convert = True
 # False if test after creation
 skip_test = False
 
@@ -77,10 +77,10 @@ if not skip_convert:
     # Convert the model
     converter = tf.lite.TFLiteConverter.from_saved_model(saved_model_dir)
     # Magic
-#    converter.target_spec.supported_ops = [
+    converter.target_spec.supported_ops = [
 #        tf.lite.OpsSet.TFLITE_BUILTINS,  # enable TensorFlow Lite ops.
 #        tf.lite.OpsSet.SELECT_TF_OPS  # enable TensorFlow ops.
-#    ]
+    ]
     converter.optimizations = [tf.lite.Optimize.DEFAULT]
 #    converter.inference_input_type = tf.float32
 #    converter.inference_output_type = tf.float32
