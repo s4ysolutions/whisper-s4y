@@ -44,7 +44,7 @@ class GenerateModel(tf.Module):
         # ...and pasess the data to the lite model to get the array of tokens
         outputs = self.model.generate(
             input_features,
-            forced_decoder_ids=self.forced_decoder_ids,
+            #forced_decoder_ids=self.forced_decoder_ids,
             #max_new_tokens=223,  # change as needed
             return_dict_in_generate=True,
         )
@@ -69,6 +69,7 @@ if not skip_convert:
     # audio data stream. Huggingface adds a wrapper around it with the method `generate`
     # to recognize the 30sec audio data
     model = TFWhisperForConditionalGeneration.from_pretrained(model_name)
+    model.config.forced_decoder_ids = forced_decoder_ids
     # wrap the model with our class with `serving` method
     generate_model = GenerateModel(model=model, forced_decoder_ids=forced_decoder_ids)
     # and save this (still TensorFlow) model locally (converter can convert only such saved models)
