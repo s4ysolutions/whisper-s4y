@@ -5,7 +5,7 @@ import TFForceTokensLogitsProcessorPatch as patch
 from settings import model_name, tflite_model_path
 from test import test
 
-# temporary catalog for saving the huggingface model localy
+# temporary catalog for saving the huggingface model locally
 saved_model_dir = 'tf_whisper_saved'
 # True for testing purpose
 skip_convert = False
@@ -13,15 +13,15 @@ skip_convert = False
 skip_test = False
 
 # Patching methods of class TFForceTokensLogitsProcessor(TFLogitsProcessor):
-# TFForceTokensLogitsProcessor has a bug which causes lite model to crach
-# to fix it, the 2 methods are overriden and replaced
+# TFForceTokensLogitsProcessor has a bug which causes lite model to crash
+# to fix it, the 2 methods are overridden and replaced
 # https://github.com/huggingface/transformers/issues/19691#issuecomment-1791869884
 TFForceTokensLogitsProcessor.__init__ = patch.patched__init__
 TFForceTokensLogitsProcessor.__call__ = patch.patched__call__
 
 
-# A wrapper around hugging face model to be used by Lite interpetator
-# will have the only function `serving` to be called by the exernal code
+# A wrapper around hugging face model to be used by Lite interpretation
+# will have the only function `serving` to be called by the external code
 class GenerateModel(tf.Module):
     def __init__(self, model):
         super(GenerateModel, self).__init__()
@@ -38,28 +38,28 @@ class GenerateModel(tf.Module):
     def serving(self, input_features):
         # it has only on input, namely tensor with audio data (mel spectrogram)
         # see the @tf.function decorator above
-        # ...and pasess the data to the lite model to get the array of tokens
+        # ...and passes the data to the lite model to get the array of tokens
         outputs = self.model.generate(
             input_features,
-            #forced_decoder_ids=self.forced_decoder_ids,
-            #max_new_tokens=223,  # change as needed
+            # forced_decoder_ids=self.forced_decoder_ids,
+            # max_new_tokens=223,  # change as needed
             return_dict_in_generate=True,
         )
         # it could return just array of tokes from `outputs["sequences"]`
-        # but i was a chiken to change the borrowed code and returns
+        # but I was a chicken to change the borrowed code and returns
         # a dictionary with one key-value
         return {"sequences": outputs["sequences"]}
 
 
 # huggingface utility to prepare audio data for input and
-# decode output tokens to redable string
+# decode output tokens to readable string
 processor = WhisperProcessor.from_pretrained(model_name)
 
 
 if not skip_convert:
     # convert huggingface Tensorflow model to Tensorflow lite
 
-    # Original whisper model itself has `forward` method which recognize just one tocken form
+    # Original whisper model itself has `forward` method which recognize just one token form
     # audio data stream. Huggingface adds a wrapper around it with the method `generate`
     # to recognize the 30sec audio data
     model = TFWhisperForConditionalGeneration.from_pretrained(model_name)
@@ -92,7 +92,7 @@ if not skip_test:
 
 # it is important to note: only model will be available in the application
 # which use the model but `processor` lives only in this python script, so the application
-# must implement its own way to conver PCM audio data to log-mel spectrogram
+# must implement its own way to convert PCM audio data to log-mel spectrogram
 # and map the tokens to characters.
 # For the latter task it is good idea to preload the `vocab` from hugging face
 # and either to pass it down to the application or may be better

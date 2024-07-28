@@ -5,8 +5,9 @@ from settings import model_name, tflite_model_path
 import time
 
 # huggingface utility to prepare audio data for input and
-# decode output tokens to redable string
+# decode output tokens to readable string
 processor = WhisperProcessor.from_pretrained(model_name)
+
 
 # A helper function to extract array of raw PCM floats from wav file
 def wav_audio(wav_file_path):
@@ -18,13 +19,14 @@ def wav_audio(wav_file_path):
     audio = waveform[:, 0]
     return audio
 
+
 def test():
     # model check
     # read a "waveform" - an array of the floats forming a voice raw data
     audio = wav_audio('al-fatiha.wav')
-    # we need to conver wave form to "mel spectrogram"
-    # namely to turn the 1-dimenstion array of PCM values
-    # to n-dimension array of the set of frequneces for very small duration of
+    # we need to convert wave form to "mel spectrogram"
+    # namely to turn the 1-dimension array of PCM values
+    # to n-dimension array of the set of frequents for very small duration of
     # audio record which being summed restore PCM value at that time
     # (Fourier transform if such term is easier)
     inputs = processor(audio, sampling_rate=16000, return_tensors="tf")
@@ -32,10 +34,10 @@ def test():
 
     # this commented out code for testing the original models:
     # just call their `generate` method
-    #model = TFWhisperForConditionalGeneration.from_pretrained(model_name)
-    #generated_ids = model.generate(input_features, forced_decoder_ids = forced_decoder_ids)
-    #model = GenerateModel(model=model, forced_decoder_ids=forced_decoder_ids)
-    #generated_ids = model.generate(input_features)
+    # model = TFWhisperForConditionalGeneration.from_pretrained(model_name)
+    # generated_ids = model.generate(input_features, forced_decoder_ids = forced_decoder_ids)
+    # model = GenerateModel(model=model, forced_decoder_ids=forced_decoder_ids)
+    # generated_ids = model.generate(input_features)
 
     # our purpose is to check the Lite model
     interpreter = tf.lite.Interpreter(tflite_model_path)
@@ -56,6 +58,7 @@ def test():
     print(transcription)
     duration = end_time - start_time
     print(f"Duration: {duration:.4f} seconds")
+
 
 if __name__ == "__main__":
     test()
