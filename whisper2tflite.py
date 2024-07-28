@@ -23,13 +23,10 @@ TFForceTokensLogitsProcessor.__call__ = patch.patched__call__
 # A wrapper around hugging face model to be used by Lite interpetator
 # will have the only function `serving` to be called by the exernal code
 class GenerateModel(tf.Module):
-    def __init__(self, model, forced_decoder_ids):
+    def __init__(self, model):
         super(GenerateModel, self).__init__()
         # actual Lite model to be used for generation
         self.model = model
-        # input data (alongside with audio) for every request to recognize the voice
-        # language=ar task=transcribe (not translate)
-        self.forced_decoder_ids = forced_decoder_ids
 
     # signature of the only function of the cla
     @tf.function(
@@ -71,7 +68,7 @@ if not skip_convert:
     model = TFWhisperForConditionalGeneration.from_pretrained(model_name)
     model.config.forced_decoder_ids = forced_decoder_ids
     # wrap the model with our class with `serving` method
-    generate_model = GenerateModel(model=model, forced_decoder_ids=forced_decoder_ids)
+    generate_model = GenerateModel(model=model)
     # and save this (still TensorFlow) model locally (converter can convert only such saved models)
     tf.saved_model.save(generate_model, saved_model_dir, signatures={"serving_default": generate_model.serving})
 
