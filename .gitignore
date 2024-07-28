@@ -4,3 +4,4 @@ tf_whisper_saved
 *.bak
 .idea/misc.xml
 whisper-tflite.iml
+*.swp
