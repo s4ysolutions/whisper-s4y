@@ -10,7 +10,7 @@ saved_model_dir = 'tf_whisper_saved'
 # True for testing purpose
 skip_convert = False
 # False if test after creation
-skip_test = True
+skip_test = False
 
 # Patching methods of class TFForceTokensLogitsProcessor(TFLogitsProcessor):
 # TFForceTokensLogitsProcessor has a bug which causes lite model to crach
