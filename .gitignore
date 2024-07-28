@@ -5,3 +5,4 @@ tf_whisper_saved
 .idea/misc.xml
 whisper-tflite.iml
 *.swp
+__pycache__

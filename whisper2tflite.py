@@ -23,13 +23,12 @@ TFForceTokensLogitsProcessor.__call__ = patch.patched__call__
 # A wrapper around hugging face model to be used by Lite interpetator
 # will have the only function `serving` to be called by the exernal code
 class GenerateModel(tf.Module):
-    def __init__(self, model, forced_decoder_ids):
+    def __init__(self, model):
         super(GenerateModel, self).__init__()
         # actual Lite model to be used for generation
         self.model = model
         # input data (alongside with audio) for every request to recognize the voice
         # language=ar task=transcribe (not translate)
-        self.forced_decoder_ids = forced_decoder_ids
 
     # signature of the only function of the cla
     @tf.function(
@@ -44,7 +43,6 @@ class GenerateModel(tf.Module):
         # ...and pasess the data to the lite model to get the array of tokens
         outputs = self.model.generate(
             input_features,
-            forced_decoder_ids=self.forced_decoder_ids,
             #max_new_tokens=223,  # change as needed
             return_dict_in_generate=True,
         )
@@ -58,10 +56,6 @@ class GenerateModel(tf.Module):
 # decode output tokens to redable string
 processor = WhisperProcessor.from_pretrained(model_name)
 
-# this the inpute to model's `generate` method
-# will be used later
-forced_decoder_ids = processor.get_decoder_prompt_ids(language="ar", task="transcribe")
-
 if not skip_convert:
     # convert huggingface Tensorflow model to Tensorflow lite
 
@@ -69,8 +63,9 @@ if not skip_convert:
     # audio data stream. Huggingface adds a wrapper around it with the method `generate`
     # to recognize the 30sec audio data
     model = TFWhisperForConditionalGeneration.from_pretrained(model_name)
+    model.config.forced_decoder_ids = processor.get_decoder_prompt_ids(language="ar", task="transcribe")
     # wrap the model with our class with `serving` method
-    generate_model = GenerateModel(model=model, forced_decoder_ids=forced_decoder_ids)
+    generate_model = GenerateModel(model=model)
     # and save this (still TensorFlow) model locally (converter can convert only such saved models)
     tf.saved_model.save(generate_model, saved_model_dir, signatures={"serving_default": generate_model.serving})
 
