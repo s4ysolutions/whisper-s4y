@@ -77,13 +77,13 @@ if not skip_convert:
     # Convert the model
     converter = tf.lite.TFLiteConverter.from_saved_model(saved_model_dir)
     # Magic
-    converter.target_spec.supported_ops = [
-        tf.lite.OpsSet.TFLITE_BUILTINS,  # enable TensorFlow Lite ops.
-        tf.lite.OpsSet.SELECT_TF_OPS  # enable TensorFlow ops.
-    ]
-    converter.optimizations = [tf.lite.Optimize.DEFAULT]
-    converter.inference_input_type = tf.float32
-    converter.inference_output_type = tf.float32
+#    converter.target_spec.supported_ops = [
+#        tf.lite.OpsSet.TFLITE_BUILTINS,  # enable TensorFlow Lite ops.
+#        tf.lite.OpsSet.SELECT_TF_OPS  # enable TensorFlow ops.
+#    ]
+#    converter.optimizations = [tf.lite.Optimize.DEFAULT]
+#    converter.inference_input_type = tf.float32
+#    converter.inference_output_type = tf.float32
     # And now we have tflite model
     tflite_model = converter.convert()
 
