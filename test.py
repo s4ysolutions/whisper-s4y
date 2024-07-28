@@ -52,7 +52,7 @@ def test():
     # now we have an array of `tokens` - integer values
     # and need to convert them to the string
     # use huggingface utility class to do so
-    transcription = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+    transcription = processor.batch_decode(generated_ids, skip_special_tokens=False)[0]
     print(f"transcription tflite: {transcription}")
     duration = end_time - start_time
     print(f"Duration: {duration:.4f} seconds")

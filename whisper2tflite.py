@@ -70,7 +70,7 @@ if not skip_convert_pretrained:
     inputs = processor(audio, sampling_rate=16000, return_tensors="tf")
     input_features = inputs.input_features
     generated_ids = model.generate(input_features,  return_dict_in_generate=True)['sequences']
-    transcription = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+    transcription = processor.batch_decode(generated_ids, skip_special_tokens=False)[0]
     print(f"transcription pretrained: {transcription}")
 
     # wrap the model with our class with `serving` method
