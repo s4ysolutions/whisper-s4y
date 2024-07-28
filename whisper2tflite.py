@@ -10,14 +10,14 @@ saved_model_dir = 'tf_whisper_saved'
 # True for testing purpose
 skip_convert = False
 # False if test after creation
-skip_test = True
+skip_test = False
 
 # Patching methods of class TFForceTokensLogitsProcessor(TFLogitsProcessor):
 # TFForceTokensLogitsProcessor has a bug which causes lite model to crach
 # to fix it, the 2 methods are overriden and replaced
 # https://github.com/huggingface/transformers/issues/19691#issuecomment-1791869884
-TFForceTokensLogitsProcessor.__init__ = patch.patched__init__
-TFForceTokensLogitsProcessor.__call__ = patch.patched__call__
+#TFForceTokensLogitsProcessor.__init__ = patch.patched__init__
+#TFForceTokensLogitsProcessor.__call__ = patch.patched__call__
 
 
 # A wrapper around hugging face model to be used by Lite interpetator
