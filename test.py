@@ -53,7 +53,7 @@ def test():
     # and need to convert them to the string
     # use huggingface utility class to do so
     transcription = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-    print(transcription)
+    print(f"transcription tflite: {transcription}")
     duration = end_time - start_time
     print(f"Duration: {duration:.4f} seconds")
 

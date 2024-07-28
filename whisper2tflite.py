@@ -3,12 +3,13 @@ from transformers import WhisperProcessor, TFWhisperForConditionalGeneration, TF
 import TFForceTokensLogitsProcessorPatch as patch
 
 from settings import model_name, tflite_model_path
-from test import test
+from test import test, wav_audio
 
 # temporary catalog for saving the huggingface model localy
 saved_model_dir = 'tf_whisper_saved'
 # True for testing purpose
-skip_convert = True
+skip_convert_pretrained = False
+skip_convert_tflite = False
 # False if test after creation
 skip_test = False
 
@@ -56,7 +57,7 @@ class GenerateModel(tf.Module):
 # decode output tokens to redable string
 processor = WhisperProcessor.from_pretrained(model_name)
 
-if not skip_convert:
+if not skip_convert_pretrained:
     # convert huggingface Tensorflow model to Tensorflow lite
 
     # Original whisper model itself has `forward` method which recognize just one tocken form
@@ -64,19 +65,28 @@ if not skip_convert:
     # to recognize the 30sec audio data
     model = TFWhisperForConditionalGeneration.from_pretrained(model_name)
     model.config.forced_decoder_ids = processor.get_decoder_prompt_ids(language="ar", task="transcribe")
+
+    audio = wav_audio('al-fatiha.wav')
+    inputs = processor(audio, sampling_rate=16000, return_tensors="tf")
+    input_features = inputs.input_features
+    generated_ids = model.generate(input_features,  return_dict_in_generate=True)['sequences']
+    transcription = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+    print(f"transcription pretrained: {transcription}")
+
     # wrap the model with our class with `serving` method
     generate_model = GenerateModel(model=model)
     # and save this (still TensorFlow) model locally (converter can convert only such saved models)
     tf.saved_model.save(generate_model, saved_model_dir, signatures={"serving_default": generate_model.serving})
 
+if not skip_convert_tflite:
     # Convert the model
     converter = tf.lite.TFLiteConverter.from_saved_model(saved_model_dir)
     # Magic
     converter.target_spec.supported_ops = [
-#        tf.lite.OpsSet.TFLITE_BUILTINS,  # enable TensorFlow Lite ops.
-#        tf.lite.OpsSet.SELECT_TF_OPS  # enable TensorFlow ops.
+        tf.lite.OpsSet.TFLITE_BUILTINS,  # enable TensorFlow Lite ops.
+        tf.lite.OpsSet.SELECT_TF_OPS  # enable TensorFlow ops.
     ]
-    converter.optimizations = [] #[tf.lite.Optimize.DEFAULT]
+    converter.optimizations = [tf.lite.Optimize.DEFAULT]
 #    converter.inference_input_type = tf.float32
 #    converter.inference_output_type = tf.float32
     # And now we have tflite model
