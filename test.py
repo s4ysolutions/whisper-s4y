@@ -1,8 +1,8 @@
 import tensorflow as tf
-from transformers import WhisperProcessor
 import tensorflow_io as tfio
-from settings import model_name, tflite_model_path
 import time
+from settings import model_name, tflite_model_path
+from transformers import WhisperProcessor
 
 # huggingface utility to prepare audio data for input and
 # decode output tokens to readable string
@@ -20,8 +20,7 @@ def wav_audio(wav_file_path):
     return audio
 
 
-def test():
-    # model check
+def test_input_features():
     # read a "waveform" - an array of the floats forming a voice raw data
     audio = wav_audio('al-fatiha.wav')
     # we need to convert wave form to "mel spectrogram"
@@ -31,7 +30,12 @@ def test():
     # (Fourier transform if such term is easier)
     inputs = processor(audio, sampling_rate=16000, return_tensors="tf")
     input_features = inputs.input_features
+    return input_features
 
+
+def test():
+    # model check
+    input_features = test_input_features()
     # this commented out code for testing the original models:
     # just call their `generate` method
     # model = TFWhisperForConditionalGeneration.from_pretrained(model_name)
