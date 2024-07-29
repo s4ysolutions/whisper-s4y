@@ -1,14 +1,21 @@
+import logging
 import tensorflow as tf
-from transformers import WhisperProcessor, TFWhisperForConditionalGeneration, TFForceTokensLogitsProcessor
 import TFForceTokensLogitsProcessorPatch as patch
 
 from settings import model_name, tflite_model_path
 from test import test
+from transformers import WhisperProcessor, WhisperTokenizer, TFWhisperForConditionalGeneration, TFForceTokensLogitsProcessor
 
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger("whisper2tfilte")
+
+log.info("start")
 # temporary catalog for saving the huggingface model locally
 saved_model_dir = 'tf_whisper_saved'
+skip_vocab_download = False
 # True for testing purpose
-skip_convert = False
+skip_convert_pretrained = False
+skip_convert_tflite = False
 # False if test after creation
 skip_test = False
 
@@ -19,6 +26,10 @@ skip_test = False
 TFForceTokensLogitsProcessor.__init__ = patch.patched__init__
 TFForceTokensLogitsProcessor.__call__ = patch.patched__call__
 
+# huggingface utility to prepare audio data for input and
+# decode output tokens to readable string
+processor = WhisperProcessor.from_pretrained(model_name)
+tokenizer: WhisperTokenizer = processor.tokenizer
 
 # A wrapper around hugging face model to be used by Lite interpretation
 # will have the only function `serving` to be called by the external code
@@ -51,24 +62,27 @@ class GenerateModel(tf.Module):
         return {"sequences": outputs["sequences"]}
 
 
-# huggingface utility to prepare audio data for input and
-# decode output tokens to readable string
-processor = WhisperProcessor.from_pretrained(model_name)
 
-
-if not skip_convert:
+if not skip_convert_pretrained:
     # convert huggingface Tensorflow model to Tensorflow lite
 
     # Original whisper model itself has `forward` method which recognize just one token form
     # audio data stream. Huggingface adds a wrapper around it with the method `generate`
     # to recognize the 30sec audio data
+    log.info("pretrained start...")
     model = TFWhisperForConditionalGeneration.from_pretrained(model_name)
+    log.info("pretrained done")
+    log.info("generator start...")
     model.config.forced_decoder_ids = processor.get_decoder_prompt_ids(language="ar", task="transcribe")
     # wrap the model with our class with `serving` method
     generate_model = GenerateModel(model=model)
+    log.info("generator done")
     # and save this (still TensorFlow) model locally (converter can convert only such saved models)
+    log.info("generator save start...")
     tf.saved_model.save(generate_model, saved_model_dir, signatures={"serving_default": generate_model.serving})
+    log.info("generator save done")
 
+if not skip_convert_tflite or not skip_convert_pretrained:
     # Convert the model
     converter = tf.lite.TFLiteConverter.from_saved_model(saved_model_dir)
     # Magic
