@@ -21,7 +21,8 @@ jobs:
 
     - name: zip
       run: |
-        zip whisper.tflite-${{ github.event.release.tag_name }}.zip whisper.tflite
+        ls -la
+        zip whisper.tflite-${{ github.event.release.tag_name }}.zip whisper.tflite merges.txt normalizer.json tokenizer.json vocab.json
 
     - name: Upload release package
       uses: actions/upload-release-asset@v1

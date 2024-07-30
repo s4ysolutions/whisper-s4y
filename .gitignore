@@ -1,3 +1,7 @@
 .venv
 tf_whisper_saved
 *.tflite
+merges.txt
+normalizer.json
+tokenizer.json
+vocab.json

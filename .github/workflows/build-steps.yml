@@ -32,8 +32,17 @@ jobs:
       run: |
         python3 test.py
 
+    - name: assets
+      run: |
+        python3 assets.py
+
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: whisper.tflite
-        path: whisper.tflite
+        path: |
+          vocab.json
+          tokenizer.json
+          merges.txt
+          normalizer.json
+          whisper.tflite
