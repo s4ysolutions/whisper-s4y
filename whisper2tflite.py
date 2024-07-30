@@ -2,7 +2,7 @@ import logging
 import tensorflow as tf
 import TFForceTokensLogitsProcessorPatch as patch
 
-from settings import model_name, tflite_model_path
+from settings import model_name, tflite_model_path, lang
 from test import test
 from transformers import WhisperProcessor, WhisperTokenizer, TFWhisperForConditionalGeneration, TFForceTokensLogitsProcessor
 
@@ -34,10 +34,11 @@ tokenizer: WhisperTokenizer = processor.tokenizer
 # A wrapper around hugging face model to be used by Lite interpretation
 # will have the only function `serving` to be called by the external code
 class GenerateModel(tf.Module):
-    def __init__(self, model):
+    def __init__(self, model, forced_decoder_ids):
         super(GenerateModel, self).__init__()
         # actual Lite model to be used for generation
         self.model = model
+        self.model.config.forced_decoder_ids = forced_decoder_ids
 
     # signature of the only function of the cla
     @tf.function(
@@ -73,9 +74,9 @@ if not skip_convert_pretrained:
     model = TFWhisperForConditionalGeneration.from_pretrained(model_name)
     log.info("pretrained done")
     log.info("generator start...")
-    model.config.forced_decoder_ids = processor.get_decoder_prompt_ids(language="ar", task="transcribe")
+    forced_decoder_ids = processor.get_decoder_prompt_ids(language=lang, task="transcribe")
     # wrap the model with our class with `serving` method
-    generate_model = GenerateModel(model=model)
+    generate_model = GenerateModel(model=model, forced_decoder_ids=forced_decoder_ids)
     log.info("generator done")
     # and save this (still TensorFlow) model locally (converter can convert only such saved models)
     log.info("generator save start...")
