@@ -1,3 +1,4 @@
+import json
 import tensorflow as tf
 import tensorflow_io as tfio
 import time
@@ -22,7 +23,8 @@ def wav_audio(wav_file_path):
 
 def test_input_features():
     # read a "waveform" - an array of the floats forming a voice raw data
-    audio = wav_audio('al-fatiha.wav')
+    #audio = wav_audio('al-fatiha.wav')
+    audio = wav_audio('1-1.wav')
     # we need to convert wave form to "mel spectrogram"
     # namely to turn the 1-dimension array of PCM values
     # to n-dimension array of the set of frequents for very small duration of
@@ -30,12 +32,15 @@ def test_input_features():
     # (Fourier transform if such term is easier)
     inputs = processor(audio, sampling_rate=16000, return_tensors="tf")
     input_features = inputs.input_features
+    print(input_features)
     return input_features
-
 
 def test():
     # model check
     input_features = test_input_features()
+    tensor_list = input_features.numpy().tolist()
+    with open("mel.json", 'w') as json_file:
+        json.dump(tensor_list, json_file)
     # this commented out code for testing the original models:
     # just call their `generate` method
     # model = TFWhisperForConditionalGeneration.from_pretrained(model_name)
@@ -55,10 +60,15 @@ def test():
     output = tflite_generate(input_features=input_features)
     end_time = time.time()
     generated_ids = output["sequences"]
+    ids_list = generated_ids.tolist()
+    with open("ids.json", 'w') as json_file:
+        json.dump(ids_list, json_file)
     # now we have an array of `tokens` - integer values
     # and need to convert them to the string
     # use huggingface utility class to do so
     transcription = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+    with open("transcription.txt", 'w', encoding='utf-8') as file:
+        file.write(transcription)
     print(transcription)
     duration = end_time - start_time
     print(f"Duration: {duration:.4f} seconds")

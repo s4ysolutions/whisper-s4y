@@ -5,3 +5,6 @@ merges.txt
 normalizer.json
 tokenizer.json
 vocab.json
+ids.json
+mel.json
+transcription.txt
