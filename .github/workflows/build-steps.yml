@@ -24,25 +24,16 @@ jobs:
       run: |
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     
-    - name: create tflite
+    - name: create artefacts
       run: |
-        python3 whisper2tflite.py
+        python3 -m whisper_tflite
 
     - name: test
       run: |
-        python3 test.py
-
-    - name: assets
-      run: |
-        python3 assets.py
+        python whisper_tflite/test.py --skip_plot True
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: whisper.tflite
-        path: |
-          vocab.json
-          tokenizer.json
-          merges.txt
-          normalizer.json
-          whisper.tflite
+        path: artefacts

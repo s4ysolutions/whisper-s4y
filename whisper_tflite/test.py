@@ -1,9 +1,8 @@
+import argparse
 import os.path
-
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import tensorflow_io as tfio
-
 from matplotlib.axes import Axes
 from typing import Optional
 from transformers import WhisperProcessor
@@ -75,10 +74,17 @@ def plot_logmel(logmel: tf.TensorSpec(shape=[80, 3000], dtype=tf.float32), ax: A
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Test package clie")
+
+    parser.add_argument("--skip_plot", type=str, help="Skip the generator model", default=False)
+    args = parser.parse_args()
+
     audio1, title = audio_en_1()
     features1 = extract_features(audio1)['logmel']
     features1t = extract_features_transformers(audio1)['input_features'][-1]
-    fig, axs = plt.subplots(1, 2,  figsize=(12, 12))  # Create a figure containing a single Axes.
-    plot_logmel(features1, axs[0], f"LogMel (tflite)")
-    plot_logmel(features1, axs[1], f"LogMel (transformers)")
-    plt.show()
+
+    if not args.skip_plot:
+        fig, axs = plt.subplots(1, 2,  figsize=(12, 12))  # Create a figure containing a single Axes.
+        plot_logmel(features1, axs[0], f"LogMel (tflite)")
+        plot_logmel(features1, axs[1], f"LogMel (transformers)")
+        plt.show()
