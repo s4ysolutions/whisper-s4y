@@ -2,6 +2,7 @@ import tensorflow as tf
 from typing import List
 import numpy as np
 
+
 # Patching methods of class TFForceTokensLogitsProcessor(TFLogitsProcessor):
 # TFForceTokensLogitsProcessor has a bug which causes lite model to crach
 # to fix it, the 2 methods are overriden and replaced
@@ -26,7 +27,7 @@ def patched__call__(self, input_ids: tf.Tensor, scores: tf.Tensor, cur_len: int)
         # Original code below generates NaN values when the model is exported to tflite
         # it just needs to be a negative number so that the forced token's value of 0 is the largest
         # so it will get chosen
-        #new_scores = tf.ones_like(scores, dtype=scores.dtype) * -float("inf")
+        # new_scores = tf.ones_like(scores, dtype=scores.dtype) * -float("inf")
         new_scores = tf.ones_like(scores, dtype=scores.dtype) * -float(1)
         indices = tf.stack((tf.range(batch_size), tf.tile([current_token], [batch_size])), axis=1)
         updates = tf.zeros((batch_size,), dtype=scores.dtype)
@@ -47,4 +48,3 @@ def patched__call__(self, input_ids: tf.Tensor, scores: tf.Tensor, cur_len: int)
         ),
     )
     return scores
-
