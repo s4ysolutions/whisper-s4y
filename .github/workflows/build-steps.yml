@@ -1,4 +1,4 @@
-name: create tflite
+name: build steps
 
 on:
   workflow_call:
