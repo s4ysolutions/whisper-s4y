@@ -2,6 +2,15 @@ name: build steps
 
 on:
   workflow_call:
+    inputs:
+      lang:
+        description: 'Built-in lang'
+        default: 'en'
+        type: string
+      model:
+        description: 'Huggingface model name'
+        default: 'openai/whisper-base'
+        type: string
 
 permissions:
   contents: read
@@ -26,7 +35,7 @@ jobs:
     
     - name: create artefacts
       run: |
-        python3 -m whisper_tflite
+        python3 -m whisper_tflite --model_lang ${{ inputs.lang }} --model_name ${{ inputs.model }}
 
     - name: test
       run: |

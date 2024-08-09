@@ -1,10 +1,19 @@
-name: Create tflite
+name: Create tflite from huggingface
 
 on:
   push:
     tags:
       - "build-*"
   workflow_dispatch:
+    inputs:
+      lang:
+        description: 'Built-in lang'
+        default: 'en'
+        type: string
+      model:
+        description: 'Huggingface model name'
+        default: 'openai/whisper-base'
+        type: string
 
 permissions:
   contents: read
@@ -12,6 +21,9 @@ permissions:
 jobs:
   build:
     uses: ./.github/workflows/build-steps.yml
+    with:
+      lang: ${{ inputs.lang }}
+      model: ${{ inputs.model }}
 # i do not want to mess with atomatically created releases
 #  release:
 #    runs-on: ubuntu-latest
