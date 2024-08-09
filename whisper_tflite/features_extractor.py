@@ -192,10 +192,11 @@ def mel_filter_bank(
 frame_length = 400
 frame_step = 160
 num_mel_bins = 80
+# fft_length = 400  # transformers
 fft_length = 512  # 2^9 > frame_length
 
 _mel_filters = mel_filter_bank(
-    num_frequency_bins=1 + fft_length // 2,
+    num_frequency_bins=1 + (fft_length // 2),
     num_mel_filters=num_mel_bins,
     min_frequency=0.0,
     max_frequency=8000.0,
@@ -223,15 +224,16 @@ class FeaturesExtractorModel(tf.Module):
         mel_filters = tf.convert_to_tensor(_mel_filters, dtype=tf.float32)
         mel_spec = tf.tensordot(magnitudes, mel_filters, axes=1)
 
-        mel_spec_safe = tf.clip_by_value(mel_spec, clip_value_min=1e-10, clip_value_max=1024.0)
+        mel_spec_safe = tf.clip_by_value(mel_spec, clip_value_min=1e-10, clip_value_max=31000.0)
 
-        log10denominator = tf.math.log(tf.constant(10, dtype=tf.float32))
-        log_spec = tf.math.log(mel_spec_safe) / log10denominator
+        log_spec = tf.math.log(mel_spec_safe) / tf.math.log(tf.constant(10, dtype=tf.float32))
         log_spec = tf.math.maximum(log_spec, tf.math.reduce_max(log_spec) - 8.0)
         log_spec = (log_spec + 4.0) / 4.0
         log_spec = tf.transpose(log_spec)
 
-        return {"logmel": log_spec}
+        output = tf.expand_dims(log_spec, axis=0)
+
+        return {"logmel": output}
 
 
 r"""
@@ -241,6 +243,8 @@ This save model can be used to convert it to the TFLite model.
 Returns:
     `str`: The path to the saved model directory.
 """
+
+
 def create_features_extractor() -> str:
     saved_model_dir = os.path.join(tempfile.gettempdir(), 'whisper2tflite', 'features_extractor')
     log.debug("features extractor creating start...")
@@ -252,3 +256,31 @@ def create_features_extractor() -> str:
                         signatures={"serving_default": features_extractor_model.serving})
     log.info("features extractor saving done")
     return saved_model_dir
+
+
+if __name__ == "__main__":
+    import argparse
+    import convertor
+    from config import default_model
+
+    _cwd = os.path.dirname(os.path.abspath(__file__))
+    _root = os.path.dirname(_cwd)
+
+    parser = argparse.ArgumentParser(description="The script creates Whisper features extractor")
+
+    parser.add_argument("--model_name", type=str, help="The name of the Huggingface model",
+                        default=default_model)
+    parser.add_argument("--artefacts_dir", type=str, help="The directory to save the model and assets",
+                        default=os.path.join(_root, 'artefacts'))
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    model_name = args.model_name
+    artefacts_dir = args.artefacts_dir
+
+    model_id = model_name.split("/")[-1]
+    features_extractor_model_name = f"features-extractor-{model_id}.tflite"
+
+    features_path = create_features_extractor()
+    convertor.convert_saved(features_path, os.path.join(artefacts_dir, features_extractor_model_name))
