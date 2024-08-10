@@ -124,10 +124,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Test package cli")
 
     parser.add_argument("--debug", type=str, help="Turn on debugging", default=True)
-    parser.add_argument("--lang", type=str, help="The language used to recognize speech",
+    parser.add_argument("--model_lang", type=str, help="The language used to recognize speech",
                         default=default_lang)
     parser.add_argument("--skip_plot", type=str, help="Skip the generator model", default=False)
-    parser.add_argument("--huggingface_model_name", type=str, help="The name of the Huggingface model",
+    parser.add_argument("--model_name", type=str, help="The name of the Huggingface model",
                         default=default_model)
     parser.add_argument("--tflite_generator_path", type=str, help="The path of the Generator tflite model path",
                         default=os.path.join(_root, 'artefacts', f"{default_model_id}-[lang].tflite"))
@@ -141,7 +141,7 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.DEBUG)
 
     lang = args.lang
-    huggingface_model_name = args.huggingface_model_name
+    huggingface_model_name = args.model_name
     huggingface_model_id = huggingface_model_name.split("/")[-1]
     tflite_generator_path = args.tflite_generator_path.replace('[model_id]',
                                                                huggingface_model_id).replace('[lang]', lang)
