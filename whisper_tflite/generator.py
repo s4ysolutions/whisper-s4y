@@ -116,18 +116,18 @@ def create_from_huggingface(model_name: str, lang: str) -> str:
     processor = WhisperTokenizer.from_pretrained(model_name)
     log.info(f"{model_name} huggingface tokenize download done")
 
-    log.debug("generator creating start...")
+    log.debug(f"{model_name}/{lang} generator creating start...")
     if lang is None:
         forced_decoder_ids = processor.get_decoder_prompt_ids(task="transcribe")
     else:
         forced_decoder_ids = processor.get_decoder_prompt_ids(language=lang, task="transcribe")
     # wrap the model with our class with `serving` method
     generate_model = GenerateModel(model=model, forced_decoder_ids=forced_decoder_ids)
-    log.info("generator creating done")
+    log.info(f"{model_name}/{lang} generator creating done")
 
-    log.debug("generator save start...")
+    log.debug(f"{model_name}/{lang} generator save start...")
     tf.saved_model.save(generate_model, saved_model_dir, signatures={"serving_default": generate_model.serving})
-    log.info("generator save done")
+    log.info(f"{model_name}/{lang} generator save done")
     return saved_model_dir
 
 
