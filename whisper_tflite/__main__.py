@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     if not args.skip_features_extractor:
         features_path = features_extractor.create_features_extractor()
-        convertor.convert_saved(features_path, os.path.join(artefacts_dir, features_extractor_model_name))
+        convertor.convert_saved(features_path, os.path.join(artefacts_dir, features_extractor_model_name), False)
 
     if not args.skip_assets:
         assets.download_from_huggingface(model_name, artefacts_dir)
