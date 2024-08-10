@@ -108,13 +108,13 @@ Returns:
 
 def create_from_huggingface(model_name: str, lang: str) -> str:
     saved_model_dir = os.path.join(tempfile.gettempdir(), 'whisper2tflite', 'generator')
-    log.debug("huggingface model download start...")
+    log.debug(f"{model_name} huggingface model download start...")
     model = TFWhisperForConditionalGeneration.from_pretrained(model_name)
-    log.info("huggingface model download done")
+    log.info(f"{model_name} huggingface model download done")
 
-    log.debug("huggingface tokenize download start...")
+    log.debug(f"{model_name} huggingface tokenize download start...")
     processor = WhisperTokenizer.from_pretrained(model_name)
-    log.info("huggingface tokenize download done")
+    log.info(f"{model_name} huggingface tokenize download done")
 
     log.debug("generator creating start...")
     if lang is None:

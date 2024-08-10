@@ -9,7 +9,7 @@ if __name__ == "__main__":
     log = logging.getLogger("whisper2tflite")
 
     default_model = config.default_model
-    lang = config.default_lang
+    default_lang = config.default_lang
 
     _cwd = os.path.dirname(os.path.abspath(__file__))
     _root = os.path.dirname(_cwd)
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_name", type=str, help="The name of the Huggingface model",
                         default=default_model)
     parser.add_argument("--model_lang", type=str, help="The language used to recognize speech",
-                        default=lang)
+                        default=default_lang)
     parser.add_argument("--skip_generator", type=str, help="Skip the generator model", default=False)
     parser.add_argument("--skip_features_extractor", type=str, help="Skip the features extractor", default=False)
     parser.add_argument("--skip_assets", type=str, help="Skip the downloading of assets", default=False)
@@ -35,13 +35,14 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.DEBUG)
 
     model_name = args.model_name
+    model_lang = args.model_lang
     artefacts_dir = args.artefacts_dir
     model_id = model_name.split("/")[-1]
-    generator_model_name = f"{model_id}-{lang}.tflite"
+    generator_model_name = f"{model_id}-{model_lang}.tflite"
     features_extractor_model_name = f"features-extractor-{model_id}.tflite"
 
     if not args.skip_generator:
-        model_path = generator.create_from_huggingface(model_name, args.model_lang)
+        model_path = generator.create_from_huggingface(model_name, model_lang)
         convertor.convert_saved(model_path, os.path.join(artefacts_dir, generator_model_name))
 
     if not args.skip_features_extractor:
