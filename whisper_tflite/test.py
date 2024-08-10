@@ -130,7 +130,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_name", type=str, help="The name of the Huggingface model",
                         default=default_model)
     parser.add_argument("--tflite_generator_path", type=str, help="The path of the Generator tflite model path",
-                        default=os.path.join(_root, 'artefacts', f"{default_model_id}-[lang].tflite"))
+                        default=os.path.join(_root, 'artefacts', f"[model_id]-[lang].tflite"))
     parser.add_argument("--tflite_features_extractor_path", type=str, help="The path of the FeaturesExtractor tflite "
                                                                            "model path",
                         default=os.path.join(_root, 'artefacts',
