@@ -140,7 +140,7 @@ if __name__ == "__main__":
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
 
-    lang = args.lang
+    lang = args.model_lang
     huggingface_model_name = args.model_name
     huggingface_model_id = huggingface_model_name.split("/")[-1]
     tflite_generator_path = args.tflite_generator_path.replace('[model_id]',
