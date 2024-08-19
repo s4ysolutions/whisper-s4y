@@ -106,10 +106,11 @@ Returns:
 """
 
 
-def create_from_huggingface(model_name: str, lang: str) -> str:
-    saved_model_dir = os.path.join(tempfile.gettempdir(), 'whisper2tflite', 'generator')
+def create_from_huggingface(model_name: str, lang: str, saved_model_dir: str = None) -> str:
+    if saved_model_dir is None:
+        saved_model_dir = os.path.join(tempfile.gettempdir(), 'whisper2tflite', 'generator')
     log.debug(f"{model_name} huggingface model download start...")
-    model = TFWhisperForConditionalGeneration.from_pretrained(model_name)
+    model = TFWhisperForConditionalGeneration.from_pretrained(model_name, from_pt = True)
     log.info(f"{model_name} huggingface model download done")
 
     log.debug(f"{model_name} huggingface tokenize download start...")

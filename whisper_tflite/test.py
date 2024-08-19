@@ -123,10 +123,10 @@ if __name__ == "__main__":
     # Setup
     parser = argparse.ArgumentParser(description="Test package cli")
 
-    parser.add_argument("--debug", type=str, help="Turn on debugging", default=True)
+    parser.add_argument("--debug", action='store_true', help="Turn on debugging")
     parser.add_argument("--model_lang", type=str, help="The language used to recognize speech",
                         default=default_lang)
-    parser.add_argument("--skip_plot", type=str, help="Skip the generator model", default=False)
+    parser.add_argument("--skip_plot", action='store_true', help="Skip the generator model")
     parser.add_argument("--model_name", type=str, help="The name of the Huggingface model",
                         default=default_model)
     parser.add_argument("--tflite_generator_path", type=str, help="The path of the Generator tflite model path",
@@ -178,9 +178,9 @@ if __name__ == "__main__":
     tokens1t = transformers_generate(features1t)
     log.info(f"transformers tokens shape: {tokens1t.shape}")
 
-    #transformersTokensInTFLiteTones = tf.map_fn(lambda x: tf.reduce_any(tf.equal(tokens1[0], x)), tokens1t, dtype=tf.bool)
-    #is_subset = tf.reduce_all(transformersTokensInTFLiteTones)
-    #log.info(f"Transformers tokens are subset of TFLite tokens: {is_subset}")
+    # transformersTokensInTFLiteTones = tf.map_fn(lambda x: tf.reduce_any(tf.equal(tokens1[0], x)), tokens1t, dtype=tf.bool)
+    # is_subset = tf.reduce_all(transformersTokensInTFLiteTones)
+    # log.info(f"Transformers tokens are subset of TFLite tokens: {is_subset}")
 
     transcript1 = decode(tokens1)
     log.info(f"TFLite transcript: {transcript1}")
@@ -202,4 +202,3 @@ if __name__ == "__main__":
             plot_logmel(features2t, fig2, axs2[1], f"LogMel (transformers)")
 
         plt.show()
-

@@ -39,7 +39,7 @@ jobs:
 
     - name: test
       run: |
-        python whisper_tflite/test.py --skip_plot True --model_lang ${{ inputs.lang }} --model_name ${{ inputs.model }}
+        python whisper_tflite/test.py --skip_plot --model_lang ${{ inputs.lang }} --model_name ${{ inputs.model }}
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3

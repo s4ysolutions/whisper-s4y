@@ -33,3 +33,15 @@ def convert_saved(saved_model_dir: str, tflite_model_path: Union[LiteralString, 
     with open(tflite_model_path, 'wb') as f:
         f.write(tflite_model)
     log.info(f"{name} converted model save done")
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Converts a saved model into a TFLite model")
+    parser.add_argument("--debug", action='store_true', help="Turn on debugging")
+    parser.add_argument("--saved_model_dir", type=str, help="The directory of the saved model")
+    parser.add_argument("--tflite_model_path", type=str, help="The path to save the TFLite model")
+    parser.add_argument("--optimize", action='store_false', help="Optimize the TFLite model")
+    args = parser.parse_args()
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+    convert_saved(args.saved_model_dir, args.tflite_model_path, args.optimize)

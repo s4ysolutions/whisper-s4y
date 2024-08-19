@@ -17,16 +17,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="The script creates TFLite version of Huggingface model,  Whisper features extractor and downloads Whisper tokenizer assets")
 
-    parser.add_argument("--debug", type=str, help="Turn on debugging", default=True)
+    parser.add_argument("--debug", action='store_true', help="Turn on debugging")
     parser.add_argument("--model_name", type=str, help="The name of the Huggingface model",
                         default=default_model)
     parser.add_argument("--model_lang", type=str, help="The language used to recognize speech",
                         default=default_lang)
-    parser.add_argument("--skip_generator", type=str, help="Skip the generator model", default=False)
-    parser.add_argument("--skip_features_extractor", type=str, help="Skip the features extractor", default=False)
-    parser.add_argument("--skip_assets", type=str, help="Skip the downloading of assets", default=False)
+    parser.add_argument("--skip_generator", action='store_true', help="Skip the generator model")
+    parser.add_argument("--skip_features_extractor", action='store_true', help="Skip the features extractor")
+    parser.add_argument("--skip_assets", action='store_true', help="Skip the downloading of assets")
     parser.add_argument("--artefacts_dir", type=str, help="The directory to save the model and assets",
                         default=os.path.join(_root, "artefacts"))
+    parser.add_argument("--saved_model_dir", type=str, help="The directory to save the intermediate model files",
+                        default=None)
 
     # Parse the arguments
     args = parser.parse_args()
@@ -40,9 +42,12 @@ if __name__ == "__main__":
     model_id = model_name.split("/")[-1]
     generator_model_name = f"{model_id}-{model_lang}.tflite"
     features_extractor_model_name = f"features-extractor-{model_id}.tflite"
+    saved_model_dir = args.saved_model_dir
 
     if not args.skip_generator:
-        model_path = generator.create_from_huggingface(model_name, model_lang)
+        model_path = generator.create_from_huggingface(model_name, model_lang, saved_model_dir)
+        if (args.debug):
+            log.debug(f"Model saved path: {model_path}")
         convertor.convert_saved(model_path, os.path.join(artefacts_dir, generator_model_name))
 
     if not args.skip_features_extractor:
