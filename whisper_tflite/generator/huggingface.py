@@ -79,6 +79,7 @@ class GenerateModel(tf.Module):
         input_signature=[
             tf.TensorSpec((1, 80, 3000), tf.float32, name="input_features"),
         ],
+        jit_compile=True
     )
     def serving(self, input_features):
         # pass the data to the lite model to get the array of tokens
