@@ -41,7 +41,7 @@ if __name__ == "__main__":
     artefacts_dir = args.artefacts_dir
     model_id = model_name.split("/")[-1]
     generator_model_name = f"{model_id}-{model_lang}.tflite"
-    features_extractor_model_name = f"features-extractor-{model_id}.tflite"
+    features_extractor_model_name = f"features-extractor.tflite"
     saved_model_dir = args.saved_model_dir
 
     if not args.skip_generator:

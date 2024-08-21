@@ -268,8 +268,6 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="The script creates Whisper features extractor")
 
-    parser.add_argument("--model_name", type=str, help="The name of the Huggingface model",
-                        default=default_model)
     parser.add_argument("--artefacts_dir", type=str, help="The directory to save the model and assets",
                         default=os.path.join(_root, 'artefacts'))
 
@@ -280,7 +278,7 @@ if __name__ == "__main__":
     artefacts_dir = args.artefacts_dir
 
     model_id = model_name.split("/")[-1]
-    features_extractor_model_name = f"features-extractor-{model_id}.tflite"
+    features_extractor_model_name = f"features-extractor.tflite"
 
     features_path = create_features_extractor()
     convertor.convert_saved(features_path, os.path.join(artefacts_dir, features_extractor_model_name), False)
