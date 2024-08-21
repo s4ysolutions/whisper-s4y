@@ -106,7 +106,7 @@ Returns:
 """
 
 
-def create_from_huggingface(model_name: str, lang: str, saved_model_dir: str = None) -> str:
+def save(model_name: str, lang: str, saved_model_dir: str = None) -> str:
     if saved_model_dir is None:
         saved_model_dir = os.path.join(tempfile.gettempdir(), 'whisper2tflite', 'generator')
     log.debug(f"{model_name} huggingface model download start...")
@@ -162,5 +162,5 @@ if __name__ == "__main__":
     model_id = model_name.split("/")[-1]
     generator_model_name = f"{model_id}-{lang}.tflite"
 
-    model_path = create_from_huggingface(model_name, lang)
+    model_path = save(model_name, lang)
     convertor.convert_saved(model_path, os.path.join(artefacts_dir, generator_model_name))

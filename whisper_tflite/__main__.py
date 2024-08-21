@@ -1,6 +1,7 @@
 import logging
 import os
-from . import assets, generator, features_extractor, convertor
+from . import assets, features_extractor, convertor
+from whisper_tflite.generator import huggingface
 
 if __name__ == "__main__":
     import argparse
@@ -45,7 +46,7 @@ if __name__ == "__main__":
     saved_model_dir = args.saved_model_dir
 
     if not args.skip_generator:
-        model_path = generator.create_from_huggingface(model_name, model_lang, saved_model_dir)
+        model_path = huggingface.save(model_name, model_lang, saved_model_dir)
         if (args.debug):
             log.debug(f"Model saved path: {model_path}")
         convertor.convert_saved(model_path, os.path.join(artefacts_dir, generator_model_name))
