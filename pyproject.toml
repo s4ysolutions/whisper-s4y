@@ -51,4 +51,6 @@ dependencies = [
 "Homepage" = "https://github.com:s4ysolutions/whisper-s4y.git"
 
 [tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["whisper_s4y"]
 py-modules = []

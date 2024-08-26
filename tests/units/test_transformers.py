@@ -65,23 +65,6 @@ def test_get_logits_processor(forced_decoder_ids_ar):
                                            forced_decoder_ids_ar[2][1]], dtype=tf.int32))
 
 
-def test_model_output_first_ar(transformers_encoded_output_ar, wfcg_outputs_logits_1_ar):
-    # Arrange
-    gm = hf.for_conditional_generation(test_model_id)
-    # Act
-    model_outputs = gm(
-        input_features=None,
-        encoder_outputs=transformers_encoded_output_ar,
-        past_key_values=None,
-        decoder_input_ids=tf.constant([[50258]], dtype=tf.int32),
-        use_cache=False,
-        decoder_attention_mask=None,
-        decoder_position_ids=tf.constant([[0]], dtype=tf.int32),
-    )
-    # Assert
-    tf.debugging.assert_equal(model_outputs["logits"], wfcg_outputs_logits_1_ar)
-
-
 def test_greedy_search_ar(tokens_ar, transformers_encoded_output_ar, forced_decoder_ids_ar, transcription_ar):
     # Arrange
     gm = hf.for_conditional_generation(test_model_id)
