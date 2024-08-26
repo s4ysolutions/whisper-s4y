@@ -11,7 +11,7 @@ and then use the `tf.lite.TFLiteConverter` to convert the model fails on the tin
 most valuable in the TF lite targeted environments.
 
 Besides this task the helper functions suggests the LogMel Spectrogram extraction and solving the notorious
-crash problem with the message TODO:
+crash problem with the weird message.
 
 ## Overview
 
@@ -43,7 +43,7 @@ waveform, sample_rate = tf.audio.decode_wav(tf.io.read_file(wav_file_path))
 waveform = tfio.audio.resample(waveform, rate_in=sample_rate, rate_out=16000)
 ```
 
-see [normalized_audio_from_wav.py](./tests/__init__.py)
+see [normalized_audio_from_wav.py](https://github.com/s4ysolutions/whisper-s4y/blob/e4bef88943c00e7c2b111738c1c79caa809d16b7/tests/__init__.py#L86)y)
 
 ### Features extraction
 
@@ -54,7 +54,8 @@ extractor = S4yFeaturesExtractor()
 input_features = extractor(waveform)
 ```
 
-see [test_features_extractor.py](./tests/test_features_extractor.py)
+see [test_features_extractor.py](./tests/units/test_features_extractor.py)
+see [test_features_extractor_tflite.py](tests/units/test_features_extractor_tflite.py)
 
 alternatively the features can be extracted with the wrapper around the `huggingface` API:
 
@@ -79,6 +80,9 @@ encoder = S4yEncoder(huggingface_model_id)
 last_hidden_states = encoder(input_features)
 ```
 
+see [test_encoder.py](./tests/units/test_encoder.py)
+see [test_encoder_tflite.py](tests/units/test_encoder_tflite.py)
+
 ### Decoder
 
 ```python
@@ -87,6 +91,9 @@ from whisper_s4y.whisper.huggingface.s4y_model import S4yDecoder
 decoder = S4yDecoder(test_model_id, lang='ar', max_length=100)
 tokens = decoder(encoder_hidden_states=last_hidden_states)
 ```
+
+see [test_decoder.py](./tests/units/test_decoder.py)
+see [test_decoder_tflite.py](tests/units/test_decoder_tflite.py)
 
 ### Postprocessing
 
@@ -128,7 +135,7 @@ tokens = runner(input_features=transformer_input_features)['tokens']
 ## Crash problems
 
 The converted models often crash with the weird messages. The one reason is using the `-inf` values in the
-implementation of Hugginfface transformers. At least the one place is detected and patched in `__init__.py`
+implementation of Hugginfface transformers. At least the one place is detected and [patched](https://github.com/s4ysolutions/whisper-s4y/blob/e4bef88943c00e7c2b111738c1c79caa809d16b7/src/whisper_s4y/whisper/huggingface/__init__.py#L8) in `__init__.py`
 with 
 
 ```python
