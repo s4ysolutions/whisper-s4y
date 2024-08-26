@@ -43,7 +43,7 @@ waveform, sample_rate = tf.audio.decode_wav(tf.io.read_file(wav_file_path))
 waveform = tfio.audio.resample(waveform, rate_in=sample_rate, rate_out=16000)
 ```
 
-see [normalized_audio_from_wav.py](https://github.com/s4ysolutions/whisper-s4y/blob/e4bef88943c00e7c2b111738c1c79caa809d16b7/tests/__init__.py#L86)y)
+see [normalized_audio_from_wav.py](https://github.com/s4ysolutions/whisper-s4y/blob/e4bef88943c00e7c2b111738c1c79caa809d16b7/tests/__init__.py#L86)
 
 ### Features extraction
 
