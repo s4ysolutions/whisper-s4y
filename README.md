@@ -55,6 +55,7 @@ input_features = extractor(waveform)
 ```
 
 see [test_features_extractor.py](./tests/units/test_features_extractor.py)
+
 see [test_features_extractor_tflite.py](tests/units/test_features_extractor_tflite.py)
 
 alternatively the features can be extracted with the wrapper around the `huggingface` API:
@@ -81,6 +82,7 @@ last_hidden_states = encoder(input_features)
 ```
 
 see [test_encoder.py](./tests/units/test_encoder.py)
+
 see [test_encoder_tflite.py](tests/units/test_encoder_tflite.py)
 
 ### Decoder
@@ -93,6 +95,7 @@ tokens = decoder(encoder_hidden_states=last_hidden_states)
 ```
 
 see [test_decoder.py](./tests/units/test_decoder.py)
+
 see [test_decoder_tflite.py](tests/units/test_decoder_tflite.py)
 
 ### Postprocessing
