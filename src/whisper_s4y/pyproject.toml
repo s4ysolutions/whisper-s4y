@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools"]
+
+[project]
+
+name = "whisper-s4y"
+
+version = "3.0.0-alpha.1"
+description = "Provides helpers to convert Hugging Face TF Whisper models to TF Lite"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE.txt" }
+
+keywords = ["whisper", "asr", "development"]
+
+authors = [
+    { name = "Sergey Dolin", email = "sergey@s4y.solutions" }
+]
+
+maintainers = [
+    { name = "Sergey Dolin", email = "sergey@s4y.solutions" }
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3.9",
+]
+
+dependencies = [
+    "argparse",
+    "colored",
+    "matplotlib",
+    "transformers",
+    "openai-whisper",
+    "onnx",
+    "onnx-tf",
+    "onnx_graphsurgeon",
+    "onnx2keras",
+    "onnxruntime",
+    "onnxscript",
+    "psutil",
+    "pytest",
+    "sng4onnx",
+    "tensorflow == 2.16.1",
+    "tensorflow_io",
+    "tensorflow_probability",
+    "tf_keras",
+]
+
+[project.urls]
+"Homepage" = "https://github.com:s4ysolutions/whisper-s4y.git"
