@@ -49,3 +49,6 @@ dependencies = [
 
 [project.urls]
 "Homepage" = "https://github.com:s4ysolutions/whisper-s4y.git"
+
+[tool.setuptools]
+py-modules = []
