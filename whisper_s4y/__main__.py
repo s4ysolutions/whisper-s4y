@@ -1,7 +1,7 @@
 import logging
 import os
-from . import assets, features_extractor, convertor
-from whisper_tflite.generator import huggingface
+from . import assets, features_extractor, tflite
+from whisper_s4y.whisper.huggingface import generate_model
 
 if __name__ == "__main__":
     import argparse
@@ -46,14 +46,14 @@ if __name__ == "__main__":
     saved_model_dir = args.saved_model_dir
 
     if not args.skip_generator:
-        model_path = huggingface.save(model_name, model_lang, saved_model_dir)
+        model_path = generate_model.save(model_name, model_lang, saved_model_dir)
         if (args.debug):
             log.debug(f"Model saved path: {model_path}")
-        convertor.convert_saved(model_path, os.path.join(artefacts_dir, generator_model_name))
+        tflite.convert_saved(model_path, os.path.join(artefacts_dir, generator_model_name))
 
     if not args.skip_features_extractor:
         features_path = features_extractor.create_features_extractor()
-        convertor.convert_saved(features_path, os.path.join(artefacts_dir, features_extractor_model_name), False)
+        tflite.convert_saved(features_path, os.path.join(artefacts_dir, features_extractor_model_name), False)
 
     if not args.skip_assets:
         assets.download_from_huggingface(model_name, artefacts_dir)

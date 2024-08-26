@@ -1,16 +1,12 @@
 import argparse
 import os.path
-import logging
 import tensorflow as tf
 import tensorflow_io as tfio
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
-from transformers import TFWhisperForConditionalGeneration, WhisperTokenizer, WhisperFeatureExtractor
+from transformers import TFWhisperForConditionalGeneration, WhisperTokenizer, WhisperFeatureExtractor, WhisperConfig
 
-log = logging.getLogger("whisper2tflite")
-
-_cwd = os.path.dirname(os.path.abspath(__file__))
-_root = os.path.dirname(_cwd)
+from whisper_s4y import log
 
 
 def normalized_audio_from_wav(wav_file_path) -> tf.TensorSpec(shape=[480000], dtype=tf.float32):
@@ -83,19 +79,19 @@ def transformers_decoder(model_name):
 
 
 def audio_ar_1():
-    return normalized_audio_from_wav(os.path.join(_root, 'test_data', 'ar', '1-1.wav')), 'ar 1'
+    return normalized_audio_from_wav(os.path.join(_project_root, 'test_data', 'ar', '1-1.wav')), 'ar 1'
 
 
 def audio_ar_2():
-    return normalized_audio_from_wav(os.path.join(_root, 'test_data', 'ar', 'al-fatiha.wav')), 'ar 2'
+    return normalized_audio_from_wav(os.path.join(_project_root, 'test_data', 'ar', 'al-fatiha.wav')), 'ar 2'
 
 
 def audio_en_1():
-    return normalized_audio_from_wav(os.path.join(_root, 'test_data', 'en', 'OSR_us_000_0030_16k.wav')), 'en 1'
+    return normalized_audio_from_wav(os.path.join(_project_root, 'test_data', 'en', 'OSR_us_000_0030_16k.wav')), 'en 1'
 
 
 def audio_en_2():
-    return normalized_audio_from_wav(os.path.join(_root, 'test_data', 'en', 'harvard-16k.wav')), 'en 2'
+    return normalized_audio_from_wav(os.path.join(_project_root, 'test_data', 'en', 'harvard-16k.wav')), 'en 2'
 
 
 def plot_audio(audio: tf.TensorSpec(shape=[480000], dtype=tf.float32), ax: Axes, title: str = 'Audio'):
@@ -116,7 +112,11 @@ def plot_logmel(logmel: tf.TensorSpec(shape=[80, 3000], dtype=tf.float32), fig, 
 
 
 if __name__ == "__main__":
+    import logging
+    import numpy as np
+
     from config import default_model, default_lang
+    from whisper_s4y import _artefact_dir, _artefacts_dir, _project_root
 
     default_model_id = default_model.split('/')[-1]
 
@@ -130,15 +130,17 @@ if __name__ == "__main__":
     parser.add_argument("--model_name", type=str, help="The name of the Huggingface model",
                         default=default_model)
     parser.add_argument("--tflite_generator_path", type=str, help="The path of the Generator tflite model path",
-                        default=os.path.join(_root, 'artefacts', f"[model_id]-[lang].tflite"))
+                        default=os.path.join(_artefacts_dir, f"[model_id]-[lang].tflite"))
     parser.add_argument("--tflite_features_extractor_path", type=str, help="The path of the FeaturesExtractor tflite "
                                                                            "model path",
-                        default=os.path.join(_root, 'artefacts',
-                                             os.path.basename("features-extractor-[model_id].tflite")))
+                        default=_artefact_dir(os.path.basename("features-extractor.tflite")))
 
     args = parser.parse_args()
+
     if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
+        log.setLevel(logging.DEBUG)
+    else:
+        log.setLevel(logging.INFO)
 
     lang = args.model_lang
     huggingface_model_name = args.model_name
@@ -164,28 +166,29 @@ if __name__ == "__main__":
         audio1, title1 = audio_en_1()
 
     # LogMel
-    features1 = tflite_extract_features(audio1)
-    log.debug(f"tflite logmel shape: {features1.shape}")
     features1t = transformers_extract_features(audio1)
     log.debug(f"transformers logmel shape: {features1t.shape}")
-    diff = features1 - features1t
-    std_dev = tf.math.reduce_std(diff)
-    log.info(f"LogMel std.dev.: {std_dev}")
+    features1 = tflite_extract_features(audio1)
+    log.debug(f"tflite logmel shape: {features1.shape}")
+    try:
+        np.testing.assert_allclose(features1t.numpy(), features1.numpy(), rtol=1e-3, atol=1e-3)
+    except AssertionError as e:
+        log.error(f"LogMel features are not close: {e}")
 
     # Tokens
-    tokens1 = tflite_generate(features1t)
-    log.info(f"tflite tokens shape: {tokens1.shape}")
     tokens1t = transformers_generate(features1t)
     log.info(f"transformers tokens shape: {tokens1t.shape}")
+    tokens1 = tflite_generate(features1t)
+    log.info(f"tflite tokens shape: {tokens1.shape}")
 
     # transformersTokensInTFLiteTones = tf.map_fn(lambda x: tf.reduce_any(tf.equal(tokens1[0], x)), tokens1t, dtype=tf.bool)
     # is_subset = tf.reduce_all(transformersTokensInTFLiteTones)
     # log.info(f"Transformers tokens are subset of TFLite tokens: {is_subset}")
 
-    transcript1 = decode(tokens1)
-    log.info(f"TFLite transcript: {transcript1}")
     transcript1t = decode(tokens1t)
     log.info(f"Transformers transcript: {transcript1t}")
+    transcript1 = decode(tokens1)
+    log.info(f"TFLite transcript: {transcript1}")
 
     if not args.skip_plot:
         fig1, axs1 = plt.subplots(2, 1, figsize=(12, 12))  # Create a figure containing a single Axes.

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/whisper-tflite.iml" filepath="$PROJECT_DIR$/whisper-tflite.iml" />
+      <module fileurl="file://$PROJECT_DIR$/whisper-s4y.iml" filepath="$PROJECT_DIR$/whisper-s4y.iml" />
     </modules>
   </component>
 </project>

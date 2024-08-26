@@ -1,13 +1,8 @@
-import logging
 import numpy as np
-import os
-import tempfile
-import tensorflow as tf
-
-log = logging.getLogger("whisper2tfilte")
+from logging import Logger
 
 
-def hertz_to_mel(freq: float, mel_scale: str = "htk"):
+def _hertz_to_mel(freq: float, mel_scale: str = "htk"):
     """
     Convert frequency from hertz to mels.
 
@@ -42,7 +37,7 @@ def hertz_to_mel(freq: float, mel_scale: str = "htk"):
     return mels
 
 
-def mel_to_hertz(mels: float, mel_scale: str = "htk"):
+def _mel_to_hertz(mels: float, mel_scale: str = "htk"):
     """
     Convert frequency from mels to hertz.
 
@@ -109,6 +104,7 @@ def mel_filter_bank(
         norm=None,
         mel_scale: str = "htk",
         triangularize_in_mel_space: bool = False,
+        log: Logger = None,
 ) -> np.ndarray:
     """
     Creates a frequency bin conversion matrix used to obtain a mel spectrogram. This is called a *mel filter bank*, and
@@ -148,6 +144,8 @@ def mel_filter_bank(
         triangularize_in_mel_space (`bool`, *optional*, defaults to `False`):
             If this option is enabled, the triangular filter is applied in mel space rather than frequency space. This
             should be set to `true` in order to get the same results as `torchaudio` when computing mel filters.
+        log (`Logger`, *optional*):
+            Logger instance to log warnings.
 
     Returns:
         `np.ndarray` of shape (`num_frequency_bins`, `num_mel_filters`): Triangular filter bank matrix. This is a
@@ -157,15 +155,15 @@ def mel_filter_bank(
         raise ValueError('norm must be one of None or "slaney"')
 
     # center points of the triangular mel filters
-    mel_min = hertz_to_mel(min_frequency, mel_scale=mel_scale)
-    mel_max = hertz_to_mel(max_frequency, mel_scale=mel_scale)
+    mel_min = _hertz_to_mel(min_frequency, mel_scale=mel_scale)
+    mel_max = _hertz_to_mel(max_frequency, mel_scale=mel_scale)
     mel_freqs = np.linspace(mel_min, mel_max, num_mel_filters + 2)
-    filter_freqs = mel_to_hertz(mel_freqs, mel_scale=mel_scale)
+    filter_freqs = _mel_to_hertz(mel_freqs, mel_scale=mel_scale)
 
     if triangularize_in_mel_space:
         # frequencies of FFT bins in Hz, but filters triangularized in mel space
         fft_bin_width = sampling_rate / (num_frequency_bins * 2)
-        fft_freqs = hertz_to_mel(fft_bin_width * np.arange(num_frequency_bins), mel_scale=mel_scale)
+        fft_freqs = _hertz_to_mel(fft_bin_width * np.arange(num_frequency_bins), mel_scale=mel_scale)
         filter_freqs = mel_freqs
     else:
         # frequencies of FFT bins in Hz
@@ -179,106 +177,11 @@ def mel_filter_bank(
         mel_filters *= np.expand_dims(enorm, 0)
 
     if (mel_filters.max(axis=0) == 0.0).any():
-        log.warning(
-            "At least one mel filter has all zero values. "
-            f"The value for `num_mel_filters` ({num_mel_filters}) may be set too high. "
-            f"Or, the value for `num_frequency_bins` ({num_frequency_bins}) may be set too low."
-        )
+        if log is not None:
+            log.warning(
+                "At least one mel filter has all zero values. "
+                f"The value for `num_mel_filters` ({num_mel_filters}) may be set too high. "
+                f"Or, the value for `num_frequency_bins` ({num_frequency_bins}) may be set too low."
+            )
 
     return mel_filters
-
-
-# These are the constants among the model calls and can be embedded in the graph
-frame_length = 400
-frame_step = 160
-num_mel_bins = 80
-# fft_length = 400  # transformers
-fft_length = 512  # 2^9 > frame_length
-
-_mel_filters = mel_filter_bank(
-    num_frequency_bins=1 + (fft_length // 2),
-    num_mel_filters=num_mel_bins,
-    min_frequency=0.0,
-    max_frequency=8000.0,
-    sampling_rate=16000,
-    norm="slaney",
-    mel_scale="slaney",
-    triangularize_in_mel_space=False
-)
-
-
-class FeaturesExtractorModel(tf.Module):
-    def __init__(self):
-        super().__init__()
-
-    @tf.function(
-        input_signature=[
-            tf.TensorSpec(shape=480000, dtype=tf.float32, name="normalized_audio"),
-        ],
-    )
-    def serving(self, normalized_audio):
-        stft_tensor = tf.signal.stft(normalized_audio, frame_length=frame_length, frame_step=frame_step,
-                                     fft_length=fft_length, pad_end=True, window_fn=tf.signal.hann_window)
-        magnitudes = tf.square(tf.abs(stft_tensor))
-
-        mel_filters = tf.convert_to_tensor(_mel_filters, dtype=tf.float32)
-        mel_spec = tf.tensordot(magnitudes, mel_filters, axes=1)
-
-        mel_spec_safe = tf.clip_by_value(mel_spec, clip_value_min=1e-10, clip_value_max=31000.0)
-
-        log_spec = tf.math.log(mel_spec_safe) / tf.math.log(tf.constant(10, dtype=tf.float32))
-        log_spec = tf.math.maximum(log_spec, tf.math.reduce_max(log_spec) - 8.0)
-        log_spec = (log_spec + 4.0) / 4.0
-        log_spec = tf.transpose(log_spec)
-
-        output = tf.expand_dims(log_spec, axis=0)
-
-        return {"logmel": output}
-
-
-r"""
-Constructs a Whisper compatible FeaturesExtractorModel TF model and saves it to the temporary directory.
-This save model can be used to convert it to the TFLite model.
-        
-Returns:
-    `str`: The path to the saved model directory.
-"""
-
-
-def create_features_extractor() -> str:
-    saved_model_dir = os.path.join(tempfile.gettempdir(), 'whisper2tflite', 'features_extractor')
-    log.debug("features extractor creating start...")
-    features_extractor_model = FeaturesExtractorModel()
-    log.info("features extractor creating done")
-
-    log.debug("features extractor saving start...")
-    tf.saved_model.save(features_extractor_model, saved_model_dir,
-                        signatures={"serving_default": features_extractor_model.serving})
-    log.info("features extractor saving done")
-    return saved_model_dir
-
-
-if __name__ == "__main__":
-    import argparse
-    import convertor
-    from config import default_model
-
-    _cwd = os.path.dirname(os.path.abspath(__file__))
-    _root = os.path.dirname(_cwd)
-
-    parser = argparse.ArgumentParser(description="The script creates Whisper features extractor")
-
-    parser.add_argument("--artefacts_dir", type=str, help="The directory to save the model and assets",
-                        default=os.path.join(_root, 'artefacts'))
-
-    # Parse the arguments
-    args = parser.parse_args()
-
-    model_name = args.model_name
-    artefacts_dir = args.artefacts_dir
-
-    model_id = model_name.split("/")[-1]
-    features_extractor_model_name = f"features-extractor.tflite"
-
-    features_path = create_features_extractor()
-    convertor.convert_saved(features_path, os.path.join(artefacts_dir, features_extractor_model_name), False)
