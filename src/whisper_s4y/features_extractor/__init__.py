@@ -4,7 +4,7 @@ import sys
 import tensorflow as tf
 
 from whisper_s4y.features_extractor.lib import mel_filter_bank
-from whisper_s4y import tflite as _tflite
+from whisper_s4y import tflite as _tflite, log as _log
 
 FRAME_LENGTH = 400
 FRAME_STEP = 160
@@ -22,8 +22,6 @@ _mel_filters = mel_filter_bank(
     mel_scale="slaney",
     triangularize_in_mel_space=False
 )
-
-_def_log = logging.getLogger(__name__)
 
 
 class S4yFeaturesExtractor(_tflite.ServingModel):
@@ -61,7 +59,7 @@ class S4yFeaturesExtractor(_tflite.ServingModel):
         return {'logmel': self.call(normalized_audio)}
 
     def tflite(self, model_name='features-extractor', tflite_model_path=None,
-               log=_def_log, optimize=False) -> str:
+               log=_log, optimize=False) -> str:
         return _tflite.tflite(model_name, self, tflite_model_path=tflite_model_path, optimize=optimize,
                               log=log)
 

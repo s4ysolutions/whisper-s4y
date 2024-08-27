@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-from whisper_s4y.whisper.huggingface.s4y_model import S4yPcmEncoder, S4yDecoder
+from whisper_s4y.whisper.huggingface.s4y_model import S4yPcmEncoder
 from tests import plot_encoded_output, test_model_id, test_log, plot_diff
 
 
