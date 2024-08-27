@@ -150,7 +150,7 @@ tokens = runner(input_features=transformer_input_features)['tokens']
 ## Crash problems
 
 The converted models often crash with the weird messages. The one reason is using the `-inf` values in the
-implementation of Hugginfface transformers. At least the one place is detected and [patched](https://github.com/s4ysolutions/whisper-s4y/blob/e4bef88943c00e7c2b111738c1c79caa809d16b7/src/whisper_s4y/whisper/huggingface/__init__.py#L8) in `__init__.py`
+implementation of Hugginfface transformers. At least the one place is detected and [patched]([https://github.com/s4ysolutions/whisper-s4y/blob/e4bef88943c00e7c2b111738c1c79caa809d16b7/src/whisper_s4y/whisper/huggingface/__init__.py#L8](https://github.com/s4ysolutions/whisper-s4y/commit/3894a5f406e0d6fd4616847708896122b1d1f08b)) in `__init__.py`
 with 
 
 ```python
