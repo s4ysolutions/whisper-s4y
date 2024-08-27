@@ -3,6 +3,7 @@ import tensorflow as tf
 from transformers import TFLogitsProcessorList
 from tests import test_model_id
 from whisper_s4y.whisper import huggingface as hf
+from whisper_s4y.whisper.huggingface.tf_logits_process_fix import MIN_INT_32
 
 
 def test_for_conditional_generation_ar(transformers_input_features_ar, forced_decoder_ids_ar, tokens_ar,
@@ -61,7 +62,7 @@ def test_get_logits_processor(forced_decoder_ids_ar):
     assert logits_processor[1].__class__.__name__ == "TFSuppressTokensAtBeginLogitsProcessor"
     assert logits_processor[2].__class__.__name__ == "TFForceTokensLogitsProcessor"
     tf.debugging.assert_equal(logits_processor[2].force_token_array,
-                              tf.constant([-1, forced_decoder_ids_ar[0][1], forced_decoder_ids_ar[1][1],
+                              tf.constant([MIN_INT_32, forced_decoder_ids_ar[0][1], forced_decoder_ids_ar[1][1],
                                            forced_decoder_ids_ar[2][1]], dtype=tf.int32))
 
 

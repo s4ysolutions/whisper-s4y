@@ -15,6 +15,18 @@ test_log.addHandler(_log_handler)
 test_log.setLevel(logging.DEBUG)
 
 
+def _env_var_bool(var_name: str) -> bool:
+    env_var = os.getenv(var_name, None)
+    if env_var is None:
+        return False
+    if env_var.lower() in ['false', '0', 'no', 'none', '']:
+        return False
+    return True
+
+
+_skip_plot = _env_var_bool(os.getenv('SKIP_PLOT', False))
+
+
 def _plot_audio(audio: tf.TensorSpec(shape=[480000], dtype=tf.float32), ax: Axes, title: str = 'Audio'):
     time = [float(n) / 16000 for n in range(len(audio))]
     ax.plot(time, audio)
@@ -44,6 +56,8 @@ def _plot_output(logmel: tf.TensorSpec(shape=[1500, 384], dtype=tf.float32), fig
 
 def plot_input_features(features_transformers: tf.TensorSpec(shape=[1, 80, 30000], dtype=tf.float32),
                         features_under_test: tf.TensorSpec(shape=[1, 80, 3000], dtype=tf.float32), title):
+    if _skip_plot:
+        return
     fig1, axs1 = plt.subplots(2, 1, figsize=(12, 12))  # Create a figure containing a single Axes.
     fig1.canvas.manager.set_window_title(f"Test: {title}")
     # fig1.suptitle(f"Audio: {title}")
@@ -54,13 +68,16 @@ def plot_input_features(features_transformers: tf.TensorSpec(shape=[1, 80, 30000
 
 def plot_diff(tf1: tf.TensorSpec(shape=None, dtype=tf.float32), tf2: tf.TensorSpec(shape=None, dtype=tf.float32),
               title):
+    if _skip_plot:
+        return
     tf0 = tf1 - tf2
     fig1, ax = plt.subplots(1, 1, figsize=(12, 12))  # Create a figure containing a single Axes.
     fig1.canvas.manager.set_window_title(f"Test: {title}")
     cax = ax.imshow(tf0, aspect='auto', origin='lower', cmap='viridis')
     fig1.colorbar(cax, ax=ax, label='Magnitude')
 
-#plot_diff(tf.constant([1, 2, 3, 4, 5], dtype=tf.float32), tf.constant([5, 4, 3, 2, 1], dtype=tf.float32), "test")
+
+# plot_diff(tf.constant([1, 2, 3, 4, 5], dtype=tf.float32), tf.constant([5, 4, 3, 2, 1], dtype=tf.float32), "test")
 
 def plot_encoded_output(output_transformers: tf.TensorSpec(shape=[1, 1500, 384], dtype=tf.float32),
                         output_under_test: tf.TensorSpec(shape=[1, 1500, 384], dtype=tf.float32), title):

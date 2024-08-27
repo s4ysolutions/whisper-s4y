@@ -24,7 +24,7 @@ _mel_filters = mel_filter_bank(
 )
 
 
-def window_function(window_length, dtype, name=None):
+def window_function(window_length, dtype=tf.float32, name=None):
     return tf.signal.hann_window(window_length, dtype=dtype, name=name)
 
 
