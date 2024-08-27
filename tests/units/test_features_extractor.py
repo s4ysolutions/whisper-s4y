@@ -4,7 +4,7 @@ import tensorflow as tf
 from tests import plot_input_features, plot_diff
 from whisper_s4y.features_extractor import S4yFeaturesExtractor
 
-atol = 0.82
+atol = 0.7025
 
 
 def test_s4ymelmodule_callable(waveform_ar, transformers_input_features_ar):

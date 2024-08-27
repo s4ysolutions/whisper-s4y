@@ -6,7 +6,7 @@ import tensorflow as tf
 from whisper_s4y.features_extractor.lib import mel_filter_bank
 from whisper_s4y import tflite as _tflite, log as _log
 
-FRAME_LENGTH = 400
+FRAME_LENGTH = 512
 FRAME_STEP = 160
 num_mel_bins = 80
 FFT_LENGTH = 512  # 2^9 > frame_length
