@@ -17,7 +17,10 @@ class S4yGenerator(_tflite.ServingModel):
         fcgm = hf.for_conditional_generation(huggingface_model_id)
         tokenizer = hf.tokenizer(huggingface_model_id)
         forced_decoder_ids = tokenizer.get_decoder_prompt_ids(language=lang, task="transcribe")
+        # I pissed off to understand where to put the forced_decoder_ids
+        # so added them to both configs
         fcgm.generation_config.forced_decoder_ids = forced_decoder_ids
+        fcgm.config.forced_decoder_ids = forced_decoder_ids
         self.transformers_model = fcgm
         super().__init__()
 

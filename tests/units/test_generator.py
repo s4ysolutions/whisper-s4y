@@ -40,7 +40,7 @@ def test_s4y_ar_serving(transformers_input_features_ar, tokens_ar):
 
 def test_generate_en_callable(transformers_input_features_en, tokens_en):
     # Arrange
-    model = S4yGenerator(test_model_id, lang='ar')
+    model = S4yGenerator(test_model_id, lang='en')
 
     # Act
     output1 = model(input_features=transformers_input_features_en)["sequences"]
@@ -54,7 +54,7 @@ def test_generate_en_callable(transformers_input_features_en, tokens_en):
 
 def test_generate_en_serving(transformers_input_features_en, tokens_en):
     # Arrange
-    model = S4yGenerator(test_model_id, lang='ar')
+    model = S4yGenerator(test_model_id, lang='en')
 
     # Act
     tokens1 = model.serving(input_features=transformers_input_features_en)["sequences"]

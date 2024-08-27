@@ -45,12 +45,12 @@ def generate_tflite(transformers_input_features, transformers_tokens, lang, opti
 # flow/lite/kernels/reduce.cc:445 std::apply(optimized_ops::Mean<T, U>, args) was not true.tensor
 # flow/lite/kernels/reduce.cc:445 std::apply(optimized_ops::Mean<T, U>, args) was not true.gather
 # index out of boundsNode number 33 (GATHER) failed to invoke.Node number 390 (WHILE) failed to invoke.
-def test_generate_ar_tflite_non_optimize(transformers_input_features_ar, tokens_ar, tokens_ar_translation):
-    generate_tflite(transformers_input_features_ar, tokens_ar_translation, lang='ar', optimize=False)
+def test_generate_ar_tflite_non_optimize(transformers_input_features_ar, tokens_ar):
+    generate_tflite(transformers_input_features_ar, tokens_ar, lang='ar', optimize=False)
 
 
-def test_generate_ar_tflite_optimize(transformers_input_features_ar, tokens_ar_translation):
-    generate_tflite(transformers_input_features_ar, tokens_ar_translation, lang='ar', optimize=True)
+def test_generate_ar_tflite_optimize(transformers_input_features_ar, tokens_ar):
+    generate_tflite(transformers_input_features_ar, tokens_ar, lang='ar', optimize=True)
 
 
 def test_generate_en_tflite_not_optimize(transformers_input_features_en, tokens_en):
