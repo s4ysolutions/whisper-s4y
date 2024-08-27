@@ -22,11 +22,9 @@ RuntimeError: tensorflow/lite/kernels/reduce.cc:445 std::apply(optimized_ops::Me
 pip install git+https://github.com/s4ysolutions/whisper-s4y
 ```
 
-<a target="_blank" href="https://colab.research.google.com/github/s4ysolutions/whisper-s4y/blob/main/colab/whisper_s4y_usage.ipynb">
+There's a <a target="_blank" href="https://colab.research.google.com/github/s4ysolutions/whisper-s4y/blob/main/colab/whisper_s4y_usage.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>
-
-There's a [Colab notebook](https://colab.research.google.com/drive/1x9EXLqb4R_QvZRrFgZQ43KIH3tkiMD-V#scrollTo=j2QwuNeVUdxv) demonstrites the python pipeline and TF Lite models usage
+</a> demonstrites the python pipeline and TF Lite models usage
 
 
 ## Overview
