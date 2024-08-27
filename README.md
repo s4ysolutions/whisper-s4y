@@ -150,14 +150,14 @@ tokens = runner(input_features=transformer_input_features)['tokens']
 ## Crash problems
 
 The converted models often crash with the weird messages. The one reason is using the `-inf` values in the
-implementation of Hugginfface transformers. At least the one place is detected and [patched][https://github.com/s4ysolutions/whisper-s4y/blob/e4bef88943c00e7c2b111738c1c79caa809d16b7/src/whisper_s4y/whisper/huggingface/__init__.py#L8) in `__init__.py`
+implementation of Hugginfface transformers. At least the one place is detected and patched in [`src/whisper_s4y/whisper/huggingface/__init__.py`](https://github.com/s4ysolutions/whisper-s4y/blob/d7b6952c80ac91664bf2ddc211ae3edeb2bd84a6/src/whisper_s4y/whisper/huggingface/__init__.py#L8)
 with 
 
 ```python
-from whisper_s4y.whisper.huggingface import force_tokens_logits_processor_fix as fix
+from whisper_s4y.whisper.huggingface import tf_logits_process_fix as fix
 
-TFForceTokensLogitsProcessor.__init__ = fix.patched__init__
-TFForceTokensLogitsProcessor.__call__ = fix.patched__call__
+TFForceTokensLogitsProcessor.__init__ = fix.TFForceTokensLogitsProcessor_patched__init__
+TFForceTokensLogitsProcessor.__call__ = fix.TFForceTokensLogitsProcessor_patched__call__
 ```
 
 ... and some [more](https://github.com/s4ysolutions/whisper-s4y/commit/3894a5f406e0d6fd4616847708896122b1d1f08b), but the other places can exist.
