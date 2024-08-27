@@ -9,11 +9,11 @@ from whisper_s4y import tflite as _tflite, log as _log
 FRAME_LENGTH = 400
 FRAME_STEP = 160
 num_mel_bins = 80
-# FFT_LENGTH = 400  # used in PyTorch transformers
 FFT_LENGTH = 512  # 2^9 > frame_length
 
 _mel_filters = mel_filter_bank(
     num_frequency_bins=1 + (FFT_LENGTH // 2),
+    #num_frequency_bins=FRAME_LENGTH // 2 + 1,
     num_mel_filters=num_mel_bins,
     min_frequency=0.0,
     max_frequency=8000.0,
@@ -24,14 +24,20 @@ _mel_filters = mel_filter_bank(
 )
 
 
+def window_function(window_length=FRAME_LENGTH, dtype=tf.float32, name=None):
+    return tf.signal.hann_window(window_length, dtype=dtype, name=name)
+
+
 class S4yFeaturesExtractor(_tflite.ServingModel):
     def __init__(self):
         super().__init__()
 
     def call(self, normalized_audio):
         stft_tensor = tf.signal.stft(normalized_audio, frame_length=FRAME_LENGTH, frame_step=FRAME_STEP,
-                                     fft_length=FFT_LENGTH, pad_end=True, window_fn=tf.signal.hann_window)
-        magnitudes = tf.square(tf.abs(stft_tensor))
+                                     fft_length=FFT_LENGTH, pad_end=True, window_fn=window_function)
+        # cut off everything beyond widnow, see test_stft.py
+        # stft_tensor = stft_tensor[:, :1 + (FRAME_LENGTH // 2)]
+        magnitudes = tf.abs(stft_tensor) ** 2
 
         mel_filters = tf.convert_to_tensor(_mel_filters, dtype=tf.float32)
         mel_spec = tf.tensordot(magnitudes, mel_filters, axes=1)
