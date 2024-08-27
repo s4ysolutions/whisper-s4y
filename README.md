@@ -10,7 +10,7 @@ approach to wrap the huggingface model with the class with the tf.function decor
 and then use the `tf.lite.TFLiteConverter` to convert the model fails on the tiny models which are
 most valuable in the TF lite targeted environments.
 
-Besides this task the helper functions suggests the LogMel Spectrogram extraction and solving the notorious
+Besides this task the helper functions suggest the LogMel Spectrogram extraction and solving the notorious
 crash problem with the weird message like this one:
 
 ```
