@@ -23,6 +23,7 @@ pip install git+https://github.com/s4ysolutions/whisper-s4y
 ```
 
 There's a <a target="_blank" href="https://colab.research.google.com/github/s4ysolutions/whisper-s4y/blob/main/colab/whisper_s4y_usage.ipynb">
+  colab notebook
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a> demonstrites the python pipeline and TF Lite models usage
 
