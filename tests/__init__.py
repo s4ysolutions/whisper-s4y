@@ -24,7 +24,7 @@ def _env_var_bool(var_name: str) -> bool:
     return True
 
 
-_skip_plot = _env_var_bool(os.getenv('SKIP_PLOT', False))
+_skip_plot = _env_var_bool('SKIP_PLOT')
 
 
 def _plot_audio(audio: tf.TensorSpec(shape=[480000], dtype=tf.float32), ax: Axes, title: str = 'Audio'):
