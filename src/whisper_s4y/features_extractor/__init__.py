@@ -13,7 +13,7 @@ FFT_LENGTH = 512  # 2^9 > frame_length
 
 _mel_filters = mel_filter_bank(
     num_frequency_bins=1 + (FFT_LENGTH // 2),
-    #num_frequency_bins=FRAME_LENGTH // 2 + 1,
+    # num_frequency_bins=FRAME_LENGTH // 2 + 1,
     num_mel_filters=num_mel_bins,
     min_frequency=0.0,
     max_frequency=8000.0,
@@ -24,7 +24,7 @@ _mel_filters = mel_filter_bank(
 )
 
 
-def window_function(window_length=FRAME_LENGTH, dtype=tf.float32, name=None):
+def window_function(window_length, dtype, name=None):
     return tf.signal.hann_window(window_length, dtype=dtype, name=name)
 
 
