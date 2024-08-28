@@ -21,6 +21,21 @@ def test_encoder_decoder_call_ar(transformers_input_features_ar, tokens_ar):
     np.testing.assert_equal(tokens1.numpy(), tokens_ar.numpy())
 
 
+def test_encoder_decoder_call_en_base(transformers_input_features_en, tokens_en):
+    # Arrange
+    model = S4yEncoderDecoder('openai/whisper-base', lang='en')
+
+    # Act
+    tokens1 = model(input_features=transformers_input_features_en)
+
+    tokenizer = hf.tokenizer(test_model_id)
+    print(tokenizer.decode(tokens1[0]))
+    print(tokenizer.decode(tokens_en[0]))
+
+    # Assert
+    np.testing.assert_equal(tokens1.numpy(), tokens_en.numpy())
+
+
 def test_encoder_decoder_serving_ar(transformers_input_features_ar, tokens_ar):
     # Arrange
     model = S4yEncoderDecoder(test_model_id, lang='ar')

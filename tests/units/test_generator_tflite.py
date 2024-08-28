@@ -5,16 +5,16 @@ from whisper_s4y.whisper.huggingface.s4y_model import S4yGenerator
 from whisper_s4y.whisper import huggingface as hf
 
 
-def generate_tflite(transformers_input_features, transformers_tokens, lang, optimize):
+def generate_tflite(transformers_input_features, transformers_tokens, lang, optimize, model_id=test_model_id):
     # Arrange
-    tflite_model_path = S4yGenerator(test_model_id, lang=lang).tflite(log=test_log, optimize=optimize)
+    tflite_model_path = S4yGenerator(model_id, lang=lang).tflite(log=test_log, optimize=optimize)
     interpreter = tf.lite.Interpreter(model_path=tflite_model_path)
     runner = interpreter.get_signature_runner()
 
     # Act
     tokens1 = runner(input_features=transformers_input_features)["sequences"]
 
-    tokenizer = hf.tokenizer(test_model_id)
+    tokenizer = hf.tokenizer(model_id)
     print(tokenizer.decode(tokens1[0]))
     print(tokenizer.decode(transformers_tokens[0]))
     # Assert
@@ -58,3 +58,6 @@ def test_generate_en_tflite_not_optimize(transformers_input_features_en, tokens_
 
 def test_generate_en_tflite_optimize(transformers_input_features_en, tokens_en):
     generate_tflite(transformers_input_features_en, tokens_en, lang='en', optimize=True)
+
+def test_generate_en_tflite_optimize_base(transformers_input_features_en, tokens_en):
+    generate_tflite(transformers_input_features_en, tokens_en, lang='en', optimize=True, model_id='openai/whisper-base')

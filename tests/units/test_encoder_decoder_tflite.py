@@ -6,9 +6,9 @@ from whisper_s4y.whisper.huggingface.s4y_model import S4yEncoderDecoder
 from tests import plot_encoded_output, test_model_id, test_log, plot_diff
 
 
-def encoder_decoder_tflite(transformer_input_features, tokens, lang: str, optimize: bool):
+def encoder_decoder_tflite(transformer_input_features, tokens, lang: str, optimize: bool, model_id=test_model_id):
     # Arrange
-    tflite_model_path = S4yEncoderDecoder(test_model_id, lang=lang).tflite(log=test_log, optimize=optimize)
+    tflite_model_path = S4yEncoderDecoder(model_id, lang=lang).tflite(log=test_log, optimize=optimize)
     interpreter = tf.lite.Interpreter(model_path=tflite_model_path)
     runner = interpreter.get_signature_runner()
 
@@ -37,6 +37,11 @@ def test_encoder_decode_tflite_ar_non_optimize(transformers_input_features_ar, t
 
 def test_encoder_decode_tflite_en_optimize(transformers_input_features_en, tokens_en):
     encoder_decoder_tflite(transformers_input_features_en, tokens_en, 'en', optimize=True)
+
+
+def test_encoder_decode_tflite_en_optimize_base(transformers_input_features_en, tokens_en):
+    encoder_decoder_tflite(transformers_input_features_en, tokens_en, 'en', optimize=True,
+                           model_id='openai/whisper-base')
 
 
 def test_encoder_decode_tflite_en_non_optimize(transformers_input_features_en, tokens_en):

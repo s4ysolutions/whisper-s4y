@@ -6,10 +6,10 @@ import tensorflow as tf
 from whisper_s4y.features_extractor.lib import mel_filter_bank
 from whisper_s4y import tflite as _tflite, log as _log
 
-FRAME_LENGTH = 512
+FRAME_LENGTH = 512 # huggingface uses 400, i changed it to make it the same as FFT_LENGTH
 FRAME_STEP = 160
 num_mel_bins = 80
-FFT_LENGTH = 512  # 2^9 > frame_length
+FFT_LENGTH = 512  # 2^9 > frame_length required by tf.signal.stft
 
 _mel_filters = mel_filter_bank(
     num_frequency_bins=1 + (FFT_LENGTH // 2),
