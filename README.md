@@ -6,7 +6,6 @@ Foo --> Bar
 @enduml
 ```
 
-<pre>
 ```mermaid
 graph TD
   A[Start] --> B{Is it working?}
@@ -14,7 +13,6 @@ graph TD
   B -- No --> D[Fix it]
   D --> B
 ```
-</pre>
 
 ## Purpose
 
