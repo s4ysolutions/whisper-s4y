@@ -1,10 +1,20 @@
 # A set of python helpers to convert [TF variant of openai/whisper](https://huggingface.co/openai/whisper-base) ASR ML model to TF lite
 
-<!--
+```plantuml
 @startuml
 Foo --> Bar
 @enduml
--->
+```
+
+<pre>
+```mermaid
+graph TD
+  A[Start] --> B{Is it working?}
+  B -- Yes --> C[Ship it]
+  B -- No --> D[Fix it]
+  D --> B
+```
+</pre>
 
 ## Purpose
 
