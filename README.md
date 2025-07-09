@@ -1,5 +1,10 @@
 # A set of python helpers to convert [TF variant of openai/whisper](https://huggingface.co/openai/whisper-base) ASR ML model to TF lite
 
+
+@startuml
+Foo --> Bar
+@enduml
+
 ## Purpose
 
 The main goal this distribution pursues is to build and test the conversion of the
